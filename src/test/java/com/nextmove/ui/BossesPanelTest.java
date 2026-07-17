@@ -18,6 +18,7 @@ import javax.swing.SwingUtilities;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class BossesPanelTest
@@ -40,6 +41,7 @@ public class BossesPanelTest
 		assertFalse(text.contains("•"));
 		assertFalse(text.contains("width: 205px"));
 		assertFalse(hasLayout(panel, FlowLayout.class));
+		assertEquals(Component.LEFT_ALIGNMENT, panel.getAlignmentX(), 0.0f);
 	}
 
 	@Test

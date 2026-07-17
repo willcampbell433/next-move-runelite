@@ -20,6 +20,7 @@ import javax.swing.SwingUtilities;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class AccountPanelTest
@@ -60,14 +61,39 @@ public class AccountPanelTest
 		assertTrue(text.contains("+ 2 more on the website"));
 	}
 
+	@Test
+	public void alignsTheAccountCardLeftAndNormalizesUnsupportedQuotes()
+	{
+		AccountPanel panel = renderPanel(fixtureWithVerdict(
+			"Calls every eighty-hour grind “a quick unlock.”").getProfile());
+		String text = text(panel);
+
+		assertEquals(Component.LEFT_ALIGNMENT, panel.getAlignmentX(), 0.0f);
+		assertFalse(text.contains("“"));
+		assertFalse(text.contains("”"));
+		assertTrue(text.contains("&quot;a quick unlock.&quot;"));
+	}
+
 	private static String render(ProfileResponse.Profile profile)
 	{
-		AtomicReference<String> rendered = new AtomicReference<>();
+		return text(renderPanel(profile));
+	}
+
+	private static AccountPanel renderPanel(ProfileResponse.Profile profile)
+	{
+		AtomicReference<AccountPanel> rendered = new AtomicReference<>();
 		onEdt(() -> {
 			AccountPanel panel = new AccountPanel();
 			panel.render(profile);
-			rendered.set(String.join("\n", textOf(panel)));
+			rendered.set(panel);
 		});
+		return rendered.get();
+	}
+
+	private static String text(Component panel)
+	{
+		AtomicReference<String> rendered = new AtomicReference<>();
+		onEdt(() -> rendered.set(String.join("\n", textOf(panel))));
 		return rendered.get();
 	}
 
@@ -107,6 +133,23 @@ public class AccountPanelTest
 			root.getAsJsonObject("profile")
 				.getAsJsonObject("bosses")
 				.add("trophies", trophies);
+			return new Gson().fromJson(root, ProfileResponse.class);
+		}
+		catch (IOException exception)
+		{
+			throw new IllegalStateException(exception);
+		}
+	}
+
+	private static ProfileResponse fixtureWithVerdict(String verdict)
+	{
+		try (InputStream stream = AccountPanelTest.class.getResourceAsStream("/fixtures/full-profile.json"))
+		{
+			JsonObject root = new JsonParser().parse(
+				new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+			root.getAsJsonObject("profile")
+				.getAsJsonObject("account")
+				.addProperty("verdict", verdict);
 			return new Gson().fromJson(root, ProfileResponse.class);
 		}
 		catch (IOException exception)

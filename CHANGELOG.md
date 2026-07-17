@@ -12,6 +12,8 @@ All notable changes to Next Move for RuneLite will be documented here.
   false friend labels.
 - Retry local-character detection after login until RuneLite exposes the name.
 - Limit the Account trophy preview while keeping the full list on the website.
+- Align every vertical sidebar section to the same left edge and normalize smart
+  punctuation for RuneLite's display font.
 
 ## 0.1.0
 

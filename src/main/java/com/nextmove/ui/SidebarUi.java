@@ -49,6 +49,15 @@ final class SidebarUi
 	private static String escape(String text)
 	{
 		String safe = text == null ? "" : text;
+		safe = safe
+			.replace('\u2018', '\'')
+			.replace('\u2019', '\'')
+			.replace('\u201c', '"')
+			.replace('\u201d', '"')
+			.replace("\u2013", "-")
+			.replace("\u2014", "-")
+			.replace("\u2026", "...")
+			.replace('\u00a0', ' ');
 		return safe
 			.replace("&", "&amp;")
 			.replace("<", "&lt;")

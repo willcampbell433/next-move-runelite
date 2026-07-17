@@ -6,6 +6,7 @@ import com.nextmove.api.ProfileResponse;
 import com.nextmove.profile.ProfileState;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Insets;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,10 +22,10 @@ import javax.swing.text.JTextComponent;
 import net.runelite.client.config.ConfigItem;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 public class NextMovePanelTest
 {
@@ -98,6 +99,13 @@ public class NextMovePanelTest
 		assertTrue(text.contains("Coach"));
 		assertTrue(text.contains("Bosses"));
 		assertTrue(text.indexOf("Account") < text.indexOf("ACCOUNT POWER"));
+		assertEquals(Component.LEFT_ALIGNMENT, harness.alignmentOf("lastwilll · My character"), 0.0f);
+		for (String label : new String[] {"Account", "Coach", "Bosses"})
+		{
+			Insets margin = harness.buttonMargin(label);
+			assertTrue(margin.left <= 4);
+			assertTrue(margin.right <= 4);
+		}
 	}
 
 	@Test
@@ -264,6 +272,48 @@ public class NextMovePanelTest
 			onEdt(() -> value.set(countOf(panel, type)));
 			return value.get();
 		}
+
+		float alignmentOf(String label)
+		{
+			AtomicReference<Float> value = new AtomicReference<>();
+			onEdt(() -> {
+				Component found = componentWithText(panel, label);
+				assertNotNull("Missing component " + label, found);
+				value.set(found.getAlignmentX());
+			});
+			return value.get();
+		}
+
+		Insets buttonMargin(String label)
+		{
+			AtomicReference<Insets> value = new AtomicReference<>();
+			onEdt(() -> {
+				AbstractButton found = button(panel, label);
+				assertNotNull("Missing button " + label, found);
+				value.set(found.getMargin());
+			});
+			return value.get();
+		}
+	}
+
+	private static Component componentWithText(Component component, String text)
+	{
+		if (component instanceof JLabel && text.equals(((JLabel) component).getText()))
+		{
+			return component;
+		}
+		if (component instanceof Container)
+		{
+			for (Component child : ((Container) component).getComponents())
+			{
+				Component found = componentWithText(child, text);
+				if (found != null)
+				{
+					return found;
+				}
+			}
+		}
+		return null;
 	}
 
 	private static int countOf(Component component, Class<? extends Component> type)
