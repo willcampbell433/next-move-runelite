@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 
 final class SidebarUi
 {
-	private static final int TEXT_WIDTH = 188;
+	private static final int TEXT_WIDTH = 180;
 
 	private SidebarUi()
 	{
@@ -50,6 +50,7 @@ final class SidebarUi
 	{
 		String safe = text == null ? "" : text;
 		safe = safe
+			.replace("\u2192", "to")
 			.replace('\u2018', '\'')
 			.replace('\u2019', '\'')
 			.replace('\u201c', '"')

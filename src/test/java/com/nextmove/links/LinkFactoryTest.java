@@ -30,6 +30,14 @@ public class LinkFactoryTest
 			LinkFactory.wikiSyncSetup());
 	}
 
+	@Test
+	public void exposesAPlayerIndependentScoringGuide()
+	{
+		assertEquals(
+			"https://osrs-helper-six.vercel.app/scoring",
+			LinkFactory.scoringGuide());
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void rejectsInvalidUsernames()
 	{

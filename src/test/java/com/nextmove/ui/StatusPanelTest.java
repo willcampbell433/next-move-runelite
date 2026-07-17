@@ -23,6 +23,6 @@ public class StatusPanelTest
 		JLabel label = (JLabel) panel.getComponent(0);
 
 		org.junit.Assert.assertTrue(label.getText().startsWith("<html>"));
-		org.junit.Assert.assertTrue(label.getText().contains("width: 188px"));
+		org.junit.Assert.assertTrue(label.getText().contains("width: 180px"));
 	}
 }

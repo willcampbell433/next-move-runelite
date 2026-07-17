@@ -18,6 +18,10 @@ All notable changes to Next Move for RuneLite will be documented here.
   familiar 100-point scale.
 - Add an explicit score-calculation link, center player lookup controls, wrap
   long status messages, and use public-facing Boss Bravery tier language.
+- Point Account Power at the dedicated scoring rubric and translate unsupported
+  recommendation arrows into RuneLite-safe text.
+- Reserve additional sidebar width so long Coach copy wraps before the
+  scrollbar instead of clipping its final characters.
 
 ## 0.1.0
 

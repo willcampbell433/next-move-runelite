@@ -65,4 +65,12 @@ public final class LinkFactory
 			.build()
 			.toString();
 	}
+
+	public static String scoringGuide()
+	{
+		return NEXT_MOVE.newBuilder()
+			.addPathSegment("scoring")
+			.build()
+			.toString();
+	}
 }

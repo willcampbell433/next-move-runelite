@@ -92,8 +92,7 @@ public class AccountPanel extends JPanel
 		add(gap(10));
 		JButton website = new JButton("How is this score calculated?");
 		website.setAlignmentX(Component.LEFT_ALIGNMENT);
-		website.addActionListener(event -> LinkBrowser.browse(
-			LinkFactory.account(profile.getUsername(), LinkFactory.View.STATS)));
+		website.addActionListener(event -> LinkBrowser.browse(LinkFactory.scoringGuide()));
 		add(website);
 
 		revalidate();
