@@ -269,6 +269,12 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 				account.render(state.getProfile().getProfile());
 				panel.add(account);
 			}
+			else if (selectedView == View.COACH)
+			{
+				CoachPanel coach = new CoachPanel();
+				coach.render(state.getProfile().getProfile());
+				panel.add(coach);
+			}
 			else
 			{
 				panel.add(new JLabel(selectedView.label));
