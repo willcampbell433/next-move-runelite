@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.AbstractButton;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -139,6 +141,29 @@ public class NextMovePanelTest
 	}
 
 	@Test
+	public void playerLookupUsesASpacedFullWidthActionRow()
+	{
+		Harness harness = panel(true);
+		ProfileResponse response = fixture("full-profile.json");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"lastwilll", "lastwilll", false, response)));
+		harness.click("Look up another player");
+
+		JTextField username = harness.textField();
+		AbstractButton lookup = harness.button("Look up player");
+		assertFalse("The action needs its own full-width row", username.getParent() == lookup.getParent());
+		assertTrue(lookup.getParent().getLayout() instanceof BoxLayout);
+		assertEquals(Integer.MAX_VALUE, lookup.getMaximumSize().width);
+
+		Component[] lookupChildren = username.getParent().getComponents();
+		int fieldIndex = indexOf(lookupChildren, username);
+		int rowIndex = indexOf(lookupChildren, lookup.getParent());
+		assertEquals(fieldIndex + 2, rowIndex);
+		assertTrue(lookupChildren[fieldIndex + 1] instanceof Box.Filler);
+		assertTrue(lookupChildren[fieldIndex + 1].getPreferredSize().height >= 6);
+	}
+
+	@Test
 	public void disablingLookupClearsMemoryAndReturnsToConsent()
 	{
 		Harness harness = panel(true);
@@ -251,7 +276,7 @@ public class NextMovePanelTest
 		void click(String label)
 		{
 			onEdt(() -> {
-				AbstractButton found = button(panel, label);
+				AbstractButton found = NextMovePanelTest.button(panel, label);
 				assertNotNull("Missing button " + label, found);
 				found.doClick();
 			});
@@ -291,10 +316,29 @@ public class NextMovePanelTest
 		{
 			AtomicReference<Insets> value = new AtomicReference<>();
 			onEdt(() -> {
-				AbstractButton found = button(panel, label);
+				AbstractButton found = NextMovePanelTest.button(panel, label);
 				assertNotNull("Missing button " + label, found);
 				value.set(found.getMargin());
 			});
+			return value.get();
+		}
+
+		AbstractButton button(String label)
+		{
+			AtomicReference<AbstractButton> value = new AtomicReference<>();
+			onEdt(() -> {
+				AbstractButton found = NextMovePanelTest.button(panel, label);
+				assertNotNull("Missing button " + label, found);
+				value.set(found);
+			});
+			return value.get();
+		}
+
+		JTextField textField()
+		{
+			AtomicReference<JTextField> value = new AtomicReference<>();
+			onEdt(() -> value.set((JTextField) componentOfType(panel, JTextField.class)));
+			assertNotNull("Missing player lookup field", value.get());
 			return value.get();
 		}
 
@@ -341,6 +385,38 @@ public class NextMovePanelTest
 			}
 		}
 		return count;
+	}
+
+	private static Component componentOfType(Component component, Class<? extends Component> type)
+	{
+		if (type.isInstance(component))
+		{
+			return component;
+		}
+		if (component instanceof Container)
+		{
+			for (Component child : ((Container) component).getComponents())
+			{
+				Component found = componentOfType(child, type);
+				if (found != null)
+				{
+					return found;
+				}
+			}
+		}
+		return null;
+	}
+
+	private static int indexOf(Component[] components, Component target)
+	{
+		for (int index = 0; index < components.length; index += 1)
+		{
+			if (components[index] == target)
+			{
+				return index;
+			}
+		}
+		return -1;
 	}
 
 	private static class FakeSettings implements NextMovePanel.Settings

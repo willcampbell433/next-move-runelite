@@ -22,6 +22,8 @@ All notable changes to Next Move for RuneLite will be documented here.
   recommendation arrows into RuneLite-safe text.
 - Reserve additional sidebar width so long Coach copy wraps before the
   scrollbar instead of clipping its final characters.
+- Make the player lookup action span the full sidebar width with clear spacing
+  below the username field.
 
 ## 0.1.0
 

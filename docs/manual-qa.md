@@ -24,7 +24,9 @@ Plugin Hub review. Do not automate any interaction with the game.
    either `osrs-helper-six.vercel.app` or `oldschool.runescape.wiki`.
 9. Look up `italiaboi69`, confirm the friend state is visually clear, and use
    **Return to my character**. The lookup field should stay collapsed until
-   **Look up another player** is chosen.
+   **Look up another player** is chosen. When open, **Look up player** should
+   span the same full width as the username field with a visible gap between
+   them.
 10. Confirm `italiaboi69`'s Inferno rationale wraps without clipping words at
     the right edge.
 11. Look up `no_noobs10` and confirm the recommendation reads **Sailing 15 to

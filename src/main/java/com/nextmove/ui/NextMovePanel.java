@@ -357,11 +357,10 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		label.setMaximumSize(new Dimension(Integer.MAX_VALUE, label.getPreferredSize().height));
 		panel.add(label);
 		JTextField username = new JTextField();
+		username.setAlignmentX(Component.LEFT_ALIGNMENT);
 		username.setMaximumSize(new Dimension(Integer.MAX_VALUE, username.getPreferredSize().height));
 		panel.add(username);
 		JButton lookup = new JButton("Look up player");
-		lookup.setAlignmentX(Component.LEFT_ALIGNMENT);
-		lookup.setMaximumSize(new Dimension(Integer.MAX_VALUE, lookup.getPreferredSize().height));
 		lookup.addActionListener(event -> {
 			String selected = username.getText().trim();
 			if (USERNAME.matcher(selected).matches())
@@ -370,7 +369,8 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 				actions.load(selected, true);
 			}
 		});
-		panel.add(lookup);
+		panel.add(Box.createRigidArea(new Dimension(0, 7)));
+		panel.add(SidebarUi.buttonStack(lookup));
 		return panel;
 	}
 
