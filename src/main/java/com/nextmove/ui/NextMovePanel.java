@@ -277,7 +277,9 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 			}
 			else
 			{
-				panel.add(new JLabel(selectedView.label));
+				BossesPanel bosses = new BossesPanel();
+				bosses.render(state.getProfile().getProfile());
+				panel.add(bosses);
 			}
 			return panel;
 		}
