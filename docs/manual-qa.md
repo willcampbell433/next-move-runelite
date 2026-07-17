@@ -1,0 +1,29 @@
+# Manual RuneLite QA
+
+Complete these checks in the developer RuneLite client before requesting a
+Plugin Hub review. Do not automate any interaction with the game.
+
+1. Launch with Java 11 using `./gradlew run` and confirm RuneLite starts without
+   a plugin exception.
+2. Confirm the Next Move compass icon appears once in the right sidebar and the
+   panel opens.
+3. With public lookup disabled, confirm the panel shows the current character
+   name but makes no request and displays **Load public profile**.
+4. Choose **Load profile**, accept the warning, and confirm Account loads for
+   the logged-in character.
+5. Confirm Account displays the overall score, tier, five category scores, and
+   titles without clipping at the normal RuneLite sidebar width.
+6. Open Coach and confirm exactly one recommendation, its rationale, unlock,
+   and full Wiki guide link render correctly.
+7. Open Bosses and confirm Boss Bravery, the next challenge, attempted bosses
+   with positive KC, and achievements render correctly.
+8. Open every external link and confirm it uses the system browser and stays on
+   either `osrs-helper-six.vercel.app` or `oldschool.runescape.wiki`.
+9. Look up `italiaboi69`, confirm the friend state is visually clear, and use
+   **Return to my character**.
+10. Refresh a loaded profile, hop worlds, and log out/in; confirm there are no
+    duplicate sidebar buttons and the current account reloads only when needed.
+11. Disable public lookup in Settings and confirm active work is cancelled, the
+    profile clears, and the consent screen returns.
+12. Stop or disable the plugin and confirm its sidebar button is removed with no
+    errors in the developer console.
