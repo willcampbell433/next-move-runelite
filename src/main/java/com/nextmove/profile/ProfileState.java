@@ -71,7 +71,7 @@ public final class ProfileState
 			null);
 	}
 
-	static ProfileState loaded(
+	public static ProfileState loaded(
 		String username,
 		String currentCharacterUsername,
 		boolean friendActive,
@@ -123,7 +123,7 @@ public final class ProfileState
 			retryAfterSeconds);
 	}
 
-	ProfileState withCurrentCharacter(String username)
+	public ProfileState withCurrentCharacter(String username)
 	{
 		return new ProfileState(
 			status,
