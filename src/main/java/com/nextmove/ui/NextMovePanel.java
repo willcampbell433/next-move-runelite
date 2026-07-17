@@ -133,10 +133,30 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 
 	public void setCurrentCharacterName(String username)
 	{
+		if (!SwingUtilities.isEventDispatchThread())
+		{
+			SwingUtilities.invokeLater(() -> setCurrentCharacterName(username));
+			return;
+		}
 		currentCharacterName = username == null || username.trim().isEmpty()
 			? null
 			: username.trim();
 		state = state.withCurrentCharacter(currentCharacterName);
+		rebuild();
+	}
+
+	public void setLookupEnabledFromConfig(boolean enabled)
+	{
+		if (!SwingUtilities.isEventDispatchThread())
+		{
+			SwingUtilities.invokeLater(() -> setLookupEnabledFromConfig(enabled));
+			return;
+		}
+		lookupEnabled = enabled;
+		if (!enabled)
+		{
+			state = ProfileState.notLoaded(currentCharacterName);
+		}
 		rebuild();
 	}
 
