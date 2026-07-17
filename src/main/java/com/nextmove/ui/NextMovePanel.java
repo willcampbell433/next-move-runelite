@@ -263,7 +263,16 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 				panel.add(wrapped("Showing the last in-memory result. Refresh failed."));
 				panel.add(Box.createRigidArea(new Dimension(0, 6)));
 			}
-			panel.add(new JLabel(selectedView.label));
+			if (selectedView == View.ACCOUNT)
+			{
+				AccountPanel account = new AccountPanel();
+				account.render(state.getProfile().getProfile());
+				panel.add(account);
+			}
+			else
+			{
+				panel.add(new JLabel(selectedView.label));
+			}
 			return panel;
 		}
 		return messagePanel(currentCharacterName == null
