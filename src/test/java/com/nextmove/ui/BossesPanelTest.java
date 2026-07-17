@@ -1,0 +1,180 @@
+package com.nextmove.ui;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.nextmove.api.ProfileResponse;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.FlowLayout;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import javax.swing.AbstractButton;
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
+import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class BossesPanelTest
+{
+	@Test
+	public void rendersBossBraveryChallengeAttemptedKcAndTrophies()
+	{
+		BossesPanel panel = renderPanel(fixture("full-profile.json").getProfile());
+		String text = text(panel);
+		assertTrue(text.contains("Boss Bravery 70 / 100"));
+		assertTrue(text.contains("Boss Goblin"));
+		assertTrue(text.contains("10 points to Built Different"));
+		assertTrue(text.contains("The Inferno"));
+		assertTrue(text.indexOf("Kraken · 1,683 KC") < text.indexOf("TzTok-Jad · 7 KC"));
+		assertTrue(text.contains("Fire Cape Acquired"));
+		assertTrue(text.contains("Open full Boss Tracker"));
+		assertTrue(text.contains("Open Wiki guide"));
+		assertFalse(text.toLowerCase().contains("gear"));
+		assertFalse(text.toLowerCase().contains("inventory"));
+		assertFalse(text.contains("•"));
+		assertFalse(text.contains("width: 205px"));
+		assertFalse(hasLayout(panel, FlowLayout.class));
+		assertEquals(Component.LEFT_ALIGNMENT, panel.getAlignmentX(), 0.0f);
+	}
+
+	@Test
+	public void rendersUnavailableBossDataWithoutInventingAZero()
+	{
+		String text = render(fixture("partial-profile.json").getProfile());
+		assertTrue(text.contains("Boss Bravery unavailable"));
+		assertFalse(text.contains("Boss Bravery 0"));
+	}
+
+	@Test
+	public void usesPublicFacingLanguageForTheFirstBraveryTier()
+	{
+		String text = render(fixtureWithTier(
+			25,
+			"Officially Has Balls",
+			40).getProfile());
+
+		assertTrue(text.contains("Proven Adventurer"));
+		assertFalse(text.contains("Officially Has Balls"));
+	}
+
+	private static String render(ProfileResponse.Profile profile)
+	{
+		return text(renderPanel(profile));
+	}
+
+	private static BossesPanel renderPanel(ProfileResponse.Profile profile)
+	{
+		AtomicReference<BossesPanel> rendered = new AtomicReference<>();
+		onEdt(() -> {
+			BossesPanel panel = new BossesPanel();
+			panel.render(profile);
+			rendered.set(panel);
+		});
+		return rendered.get();
+	}
+
+	private static String text(Component panel)
+	{
+		AtomicReference<String> rendered = new AtomicReference<>();
+		onEdt(() -> rendered.set(String.join("\n", textOf(panel))));
+		return rendered.get();
+	}
+
+	private static boolean hasLayout(Component component, Class<?> layoutType)
+	{
+		if (component instanceof Container)
+		{
+			Container container = (Container) component;
+			if (layoutType.isInstance(container.getLayout()))
+			{
+				return true;
+			}
+			for (Component child : container.getComponents())
+			{
+				if (hasLayout(child, layoutType))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private static ProfileResponse fixture(String name)
+	{
+		try (InputStream stream = BossesPanelTest.class.getResourceAsStream("/fixtures/" + name))
+		{
+			if (stream == null)
+			{
+				throw new IllegalStateException("Missing fixture " + name);
+			}
+			return new Gson().fromJson(
+				new InputStreamReader(stream, StandardCharsets.UTF_8),
+				ProfileResponse.class);
+		}
+		catch (IOException exception)
+		{
+			throw new IllegalStateException(exception);
+		}
+	}
+
+	private static ProfileResponse fixtureWithTier(int score, String tierLabel, int nextTierScore)
+	{
+		try (InputStream stream = BossesPanelTest.class.getResourceAsStream("/fixtures/full-profile.json"))
+		{
+			JsonObject root = new JsonParser().parse(
+				new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+			JsonObject bosses = root.getAsJsonObject("profile").getAsJsonObject("bosses");
+			bosses.addProperty("score", score);
+			bosses.addProperty("tierLabel", tierLabel);
+			bosses.addProperty("nextTierScore", nextTierScore);
+			return new Gson().fromJson(root, ProfileResponse.class);
+		}
+		catch (IOException exception)
+		{
+			throw new IllegalStateException(exception);
+		}
+	}
+
+	private static void onEdt(Runnable action)
+	{
+		try
+		{
+			SwingUtilities.invokeAndWait(action);
+		}
+		catch (Exception exception)
+		{
+			throw new IllegalStateException(exception);
+		}
+	}
+
+	private static List<String> textOf(Component component)
+	{
+		List<String> text = new ArrayList<>();
+		if (component instanceof JLabel)
+		{
+			text.add(((JLabel) component).getText());
+		}
+		if (component instanceof AbstractButton)
+		{
+			text.add(((AbstractButton) component).getText());
+		}
+		if (component instanceof Container)
+		{
+			for (Component child : ((Container) component).getComponents())
+			{
+				text.addAll(textOf(child));
+			}
+		}
+		return text;
+	}
+}

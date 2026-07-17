@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-17T14:00:00.000Z",
+  "profile": {
+    "username": "italiaboi69",
+    "dataSource": "WIKISYNC",
+    "questData": "AVAILABLE",
+    "account": {
+      "score": 9260,
+      "maximumScore": 10000,
+      "scoreCoverage": {
+        "availableWeightedSignals": 3,
+        "totalWeightedSignals": 3,
+        "availableDisplaySignals": 5,
+        "totalDisplaySignals": 5
+      },
+      "tierId": "ENDGAME",
+      "tierLabel": "Endgame",
+      "title": "Giga Chad",
+      "verdict": "Certified sweat. One mountain remains.",
+      "nextTierScore": null,
+      "categories": [
+        { "id": "SKILLS", "label": "Skills", "status": "AVAILABLE", "score": 92, "maximumScore": 100 },
+        { "id": "COMBAT", "label": "Combat", "status": "AVAILABLE", "score": 96, "maximumScore": 100 },
+        { "id": "BOSSES", "label": "Bosses", "status": "AVAILABLE", "score": 70, "maximumScore": 100 },
+        { "id": "RAIDS", "label": "Raids", "status": "AVAILABLE", "score": 36, "maximumScore": 100 },
+        { "id": "QUESTS", "label": "Quests", "status": "AVAILABLE", "score": 99, "maximumScore": 100 }
+      ]
+    },
+    "recommendation": {
+      "id": "boss:tzkal_zuk:1",
+      "category": "BOSS",
+      "title": "Start the Inferno cape grind",
+      "rationale": "The missing account capstone is Zuk.",
+      "evidence": [
+        "7 TzTok-Jad KC proves the foundation.",
+        "The public account record supports an Inferno attempt."
+      ],
+      "unlock": "First Inferno completion",
+      "nextMoveView": "bosses",
+      "wikiTitle": "Inferno"
+    },
+    "bosses": {
+      "score": 70,
+      "maximumScore": 100,
+      "tierId": "BOSS_GOBLIN",
+      "tierLabel": "Boss Goblin",
+      "nextTierScore": 80,
+      "recommendedChallenge": {
+        "id": "tzkal_zuk",
+        "name": "The Inferno",
+        "rationale": "The missing account capstone is Zuk.",
+        "wikiTitle": "Inferno"
+      },
+      "attempted": [
+        { "id": "kraken", "name": "Kraken", "kills": 1683, "label": "Veteran" },
+        { "id": "tztok_jad", "name": "TzTok-Jad", "kills": 7, "label": "First kill recorded" }
+      ],
+      "trophies": [
+        { "id": "fire-cape-acquired", "label": "Fire Cape Acquired", "iconKey": "FIRE" }
+      ]
+    }
+  }
+}

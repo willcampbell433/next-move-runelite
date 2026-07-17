@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-17T14:00:00.000Z",
+  "profile": {
+    "username": "no_noobs10",
+    "dataSource": "HISCORES",
+    "questData": "MISSING",
+    "account": {
+      "score": 4120,
+      "maximumScore": 10000,
+      "scoreCoverage": {
+        "availableWeightedSignals": 2,
+        "totalWeightedSignals": 3,
+        "availableDisplaySignals": 2,
+        "totalDisplaySignals": 5
+      },
+      "tierId": "EARLY",
+      "tierLabel": "Early game",
+      "title": "Lumbridge Local",
+      "verdict": "The Lumbridge cows have formally requested a rematch.",
+      "nextTierScore": 4500,
+      "categories": [
+        { "id": "SKILLS", "label": "Skills", "status": "AVAILABLE", "score": 39, "maximumScore": 100 },
+        { "id": "COMBAT", "label": "Combat", "status": "AVAILABLE", "score": 47, "maximumScore": 100 },
+        { "id": "BOSSES", "label": "Bosses", "status": "UNAVAILABLE", "score": null, "maximumScore": 100 },
+        { "id": "RAIDS", "label": "Raids", "status": "UNAVAILABLE", "score": null, "maximumScore": 100 },
+        { "id": "QUESTS", "label": "Quests", "status": "UNAVAILABLE", "score": null, "maximumScore": 100 }
+      ]
+    },
+    "recommendation": null,
+    "bosses": {
+      "score": null,
+      "maximumScore": 100,
+      "tierId": "UNAVAILABLE",
+      "tierLabel": null,
+      "nextTierScore": null,
+      "recommendedChallenge": null,
+      "attempted": [],
+      "trophies": []
+    }
+  }
+}
