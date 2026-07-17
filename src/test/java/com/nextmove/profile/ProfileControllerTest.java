@@ -88,6 +88,33 @@ public class ProfileControllerTest
 	}
 
 	@Test
+	public void currentCharacterLookupIsNeverMislabelledAsAFriend()
+	{
+		FakeLoader loader = new FakeLoader();
+		RecordingView view = new RecordingView();
+		ProfileController controller = new ProfileController(loader, view);
+
+		controller.setCurrentCharacter("lastwilll");
+		controller.load("LASTWILLL", true);
+		flushEdt();
+
+		assertFalse(view.latest.isFriendActive());
+	}
+
+	@Test
+	public void publicLookupWithoutALocalCharacterIsNotMislabelledAsAFriend()
+	{
+		FakeLoader loader = new FakeLoader();
+		RecordingView view = new RecordingView();
+		ProfileController controller = new ProfileController(loader, view);
+
+		controller.load("lastwilll", true);
+		flushEdt();
+
+		assertFalse(view.latest.isFriendActive());
+	}
+
+	@Test
 	public void ignoresLateResponsesAfterAnotherCharacterLoads()
 	{
 		FakeLoader loader = new FakeLoader();

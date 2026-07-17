@@ -4,7 +4,6 @@ import com.nextmove.api.ProfileResponse;
 import com.nextmove.links.LinkFactory;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -44,7 +43,7 @@ public class CoachPanel extends JPanel
 				add(section("WHY THIS FITS"));
 				for (String evidence : recommendation.getEvidence())
 				{
-					add(wrapped("• " + evidence));
+					add(wrapped("- " + evidence));
 				}
 			}
 
@@ -54,24 +53,23 @@ public class CoachPanel extends JPanel
 		}
 
 		add(gap(10));
-		JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-		buttons.setOpaque(false);
-		if (recommendation != null)
-		{
-			JButton wiki = new JButton("Open Wiki guide");
-			wiki.addActionListener(event -> LinkBrowser.browse(
-				LinkFactory.wiki(recommendation.getWikiTitle())));
-			buttons.add(wiki);
-		}
 		JButton website = new JButton("Continue on Next Move");
 		website.addActionListener(event -> LinkBrowser.browse(LinkFactory.account(
 			profile.getUsername(),
 			recommendation == null
 				? LinkFactory.View.COACH
 				: viewFor(recommendation.getNextMoveView()))));
-		buttons.add(website);
-		buttons.setAlignmentX(Component.LEFT_ALIGNMENT);
-		add(buttons);
+		if (recommendation != null)
+		{
+			JButton wiki = new JButton("Open Wiki guide");
+			wiki.addActionListener(event -> LinkBrowser.browse(
+				LinkFactory.wiki(recommendation.getWikiTitle())));
+			add(SidebarUi.buttonStack(wiki, website));
+		}
+		else
+		{
+			add(SidebarUi.buttonStack(website));
+		}
 
 		add(gap(12));
 		add(wrapped(
@@ -104,9 +102,7 @@ public class CoachPanel extends JPanel
 
 	private static JLabel wrapped(String text)
 	{
-		JLabel label = new JLabel("<html><body style='width: 205px'>" + text + "</body></html>");
-		label.setAlignmentX(Component.LEFT_ALIGNMENT);
-		return label;
+		return SidebarUi.wrapped(text);
 	}
 
 	private static Component gap(int height)

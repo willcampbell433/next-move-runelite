@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.AbstractButton;
 import javax.swing.JLabel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 import net.runelite.client.config.ConfigItem;
@@ -82,6 +83,48 @@ public class NextMovePanelTest
 		harness.click("Coach");
 		assertEquals("COACH", harness.settings.selectedView);
 		assertTrue(harness.text().contains("Coach"));
+	}
+
+	@Test
+	public void loadedProfileKeepsAllNavigationAboveTheContent()
+	{
+		Harness harness = panel(true);
+		ProfileResponse response = fixture("full-profile.json");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"lastwilll", "lastwilll", false, response)));
+
+		String text = harness.text();
+		assertTrue(text.contains("Account"));
+		assertTrue(text.contains("Coach"));
+		assertTrue(text.contains("Bosses"));
+		assertTrue(text.indexOf("Account") < text.indexOf("ACCOUNT POWER"));
+	}
+
+	@Test
+	public void settingsIsASeparateScreenInsteadOfStackingOverTheProfile()
+	{
+		Harness harness = panel(true);
+		ProfileResponse response = fixture("full-profile.json");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"lastwilll", "lastwilll", false, response)));
+
+		harness.click("Settings");
+
+		assertTrue(harness.text().contains("PRIVACY"));
+		assertFalse(harness.text().contains("ACCOUNT POWER"));
+	}
+
+	@Test
+	public void loadedProfileCollapsesPlayerLookupUntilRequested()
+	{
+		Harness harness = panel(true);
+		ProfileResponse response = fixture("full-profile.json");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"lastwilll", "lastwilll", false, response)));
+
+		assertEquals(0, harness.count(JTextField.class));
+		harness.click("Look up another player");
+		assertEquals(1, harness.count(JTextField.class));
 	}
 
 	@Test
@@ -214,6 +257,26 @@ public class NextMovePanelTest
 			onEdt(() -> value.set(String.join("\n", textOf(panel))));
 			return value.get();
 		}
+
+		int count(Class<? extends Component> type)
+		{
+			AtomicReference<Integer> value = new AtomicReference<>();
+			onEdt(() -> value.set(countOf(panel, type)));
+			return value.get();
+		}
+	}
+
+	private static int countOf(Component component, Class<? extends Component> type)
+	{
+		int count = type.isInstance(component) ? 1 : 0;
+		if (component instanceof Container)
+		{
+			for (Component child : ((Container) component).getComponents())
+			{
+				count += countOf(child, type);
+			}
+		}
+		return count;
 	}
 
 	private static class FakeSettings implements NextMovePanel.Settings

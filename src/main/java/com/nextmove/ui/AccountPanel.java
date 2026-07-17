@@ -36,7 +36,7 @@ public class AccountPanel extends JPanel
 		JLabel score = new JLabel(accountScore);
 		score.setFont(FontManager.getRunescapeBoldFont());
 		add(score);
-		add(new JLabel(account.getTierLabel() + " · " + account.getTitle()));
+		add(wrapped(account.getTierLabel() + " · " + account.getTitle()));
 		add(wrapped(account.getVerdict()));
 
 		if (account.getScoreCoverage().getAvailableWeightedSignals()
@@ -75,9 +75,15 @@ public class AccountPanel extends JPanel
 		}
 		else
 		{
-			for (ProfileResponse.Trophy trophy : profile.getBosses().getTrophies())
+			int shown = Math.min(4, profile.getBosses().getTrophies().size());
+			for (int index = 0; index < shown; index += 1)
 			{
-				add(new JLabel("• " + trophy.getLabel()));
+				add(wrapped("- " + profile.getBosses().getTrophies().get(index).getLabel()));
+			}
+			int remaining = profile.getBosses().getTrophies().size() - shown;
+			if (remaining > 0)
+			{
+				add(wrapped("+ " + remaining + " more on the website"));
 			}
 		}
 
@@ -115,9 +121,7 @@ public class AccountPanel extends JPanel
 
 	private static JLabel wrapped(String text)
 	{
-		JLabel label = new JLabel("<html><body style='width: 205px'>" + text + "</body></html>");
-		label.setAlignmentX(Component.LEFT_ALIGNMENT);
-		return label;
+		return SidebarUi.wrapped(text);
 	}
 
 	private static Component gap(int height)

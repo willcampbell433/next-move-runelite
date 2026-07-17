@@ -8,7 +8,7 @@ import com.nextmove.profile.ProfileView;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.util.LinkBrowser;
 
@@ -76,6 +77,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 	private String currentCharacterName;
 	private boolean lookupEnabled;
 	private boolean settingsOpen;
+	private boolean playerLookupOpen;
 	private View selectedView;
 
 	public NextMovePanel(ConfigManager configManager, NextMoveConfig config)
@@ -181,6 +183,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		removeAll();
 		add(new PanelHeader(actions::refresh, () -> {
 			settingsOpen = !settingsOpen;
+			playerLookupOpen = false;
 			rebuild();
 		}), BorderLayout.NORTH);
 
@@ -194,28 +197,18 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		if (settingsOpen)
 		{
 			body.add(settingsPanel());
-			body.add(Box.createRigidArea(new Dimension(0, 10)));
 		}
-
-		if (!lookupEnabled)
+		else if (!lookupEnabled)
 		{
 			body.add(consentPanel());
 		}
 		else
 		{
-			body.add(contentPanel());
-			body.add(Box.createRigidArea(new Dimension(0, 10)));
-			body.add(friendLookupPanel());
-			if (state.isFriendActive())
-			{
-				JButton back = new JButton("Return to my character");
-				back.setAlignmentX(Component.LEFT_ALIGNMENT);
-				back.addActionListener(event -> actions.returnToCurrentCharacter());
-				body.add(Box.createRigidArea(new Dimension(0, 6)));
-				body.add(back);
-			}
-			body.add(Box.createVerticalGlue());
 			body.add(navigationPanel());
+			body.add(Box.createRigidArea(new Dimension(0, 12)));
+			body.add(contentPanel());
+			body.add(Box.createRigidArea(new Dimension(0, 12)));
+			body.add(playerToolsPanel());
 		}
 
 		add(body, BorderLayout.CENTER);
@@ -242,6 +235,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 			{
 				actions.setCurrentCharacter(currentCharacterName);
 			}
+			settingsOpen = false;
 			rebuild();
 		});
 		panel.add(Box.createRigidArea(new Dimension(0, 8)));
@@ -311,15 +305,47 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 	private JPanel retryPanel(String message)
 	{
 		JPanel panel = messagePanel(message);
-		JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-		buttons.setOpaque(false);
 		JButton retry = new JButton("Retry");
 		retry.addActionListener(event -> actions.refresh());
 		JButton website = new JButton("Open Next Move");
 		website.addActionListener(event -> LinkBrowser.browse(websiteLink()));
-		buttons.add(retry);
-		buttons.add(website);
-		panel.add(buttons);
+		panel.add(SidebarUi.buttonStack(retry, website));
+		return panel;
+	}
+
+	private JPanel playerToolsPanel()
+	{
+		JPanel panel = vertical();
+		boolean loaded = state.getStatus() == ProfileState.Status.LOADED
+			|| state.getStatus() == ProfileState.Status.LOADED_STALE;
+		if (!loaded || playerLookupOpen)
+		{
+			panel.add(friendLookupPanel());
+		}
+		else
+		{
+			JButton openLookup = new JButton("Look up another player");
+			openLookup.setAlignmentX(Component.LEFT_ALIGNMENT);
+			openLookup.setMaximumSize(new Dimension(
+				Integer.MAX_VALUE,
+				openLookup.getPreferredSize().height));
+			openLookup.addActionListener(event -> {
+				playerLookupOpen = true;
+				rebuild();
+			});
+			panel.add(openLookup);
+		}
+
+		if (state.isFriendActive() && currentCharacterName != null)
+		{
+			JButton back = new JButton("Return to my character");
+			back.addActionListener(event -> {
+				playerLookupOpen = false;
+				actions.returnToCurrentCharacter();
+			});
+			panel.add(Box.createRigidArea(new Dimension(0, 5)));
+			panel.add(SidebarUi.buttonStack(back));
+		}
 		return panel;
 	}
 
@@ -332,10 +358,12 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		panel.add(username);
 		JButton lookup = new JButton("Look up player");
 		lookup.setAlignmentX(Component.LEFT_ALIGNMENT);
+		lookup.setMaximumSize(new Dimension(Integer.MAX_VALUE, lookup.getPreferredSize().height));
 		lookup.addActionListener(event -> {
 			String selected = username.getText().trim();
 			if (USERNAME.matcher(selected).matches())
 			{
+				playerLookupOpen = false;
 				actions.load(selected, true);
 			}
 		});
@@ -345,14 +373,18 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 
 	private JPanel navigationPanel()
 	{
-		JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 4, 0));
+		JPanel panel = new JPanel(new GridLayout(1, View.values().length, 4, 0));
 		panel.setOpaque(false);
+		panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
 		for (View view : View.values())
 		{
 			JButton button = new JButton(view.label);
 			button.setEnabled(view != selectedView);
 			button.addActionListener(event -> {
 				selectedView = view;
+				settingsOpen = false;
+				playerLookupOpen = false;
 				settings.setSelectedView(view.name());
 				rebuild();
 			});
@@ -364,8 +396,13 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 	private JPanel settingsPanel()
 	{
 		JPanel panel = vertical();
-		panel.setBorder(BorderFactory.createTitledBorder("Privacy"));
-		panel.add(wrapped("Public lookups use the fixed host " + HOST + "."));
+		JLabel title = new JLabel("PRIVACY");
+		title.setFont(FontManager.getRunescapeBoldFont());
+		title.setAlignmentX(Component.LEFT_ALIGNMENT);
+		panel.add(title);
+		panel.add(Box.createRigidArea(new Dimension(0, 6)));
+		panel.add(wrapped("Public lookup uses Next Move's fixed HTTPS service."));
+		panel.add(wrapped("Skills and bosses come from public Hiscores. Quest-aware advice uses WikiSync when available."));
 		if (lookupEnabled)
 		{
 			JButton disable = new JButton("Disable public lookup");
@@ -378,8 +415,16 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 				settingsOpen = false;
 				rebuild();
 			});
-			panel.add(disable);
+			panel.add(Box.createRigidArea(new Dimension(0, 8)));
+			panel.add(SidebarUi.buttonStack(disable));
 		}
+		JButton close = new JButton("Back to profile");
+		close.addActionListener(event -> {
+			settingsOpen = false;
+			rebuild();
+		});
+		panel.add(Box.createRigidArea(new Dimension(0, 5)));
+		panel.add(SidebarUi.buttonStack(close));
 		return panel;
 	}
 
@@ -392,7 +437,15 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		{
 			return "No character selected";
 		}
-		return username + (state.isFriendActive() ? " · Friend" : " · My character");
+		if (state.isFriendActive())
+		{
+			return username + " · Friend";
+		}
+		if (currentCharacterName != null && username.equalsIgnoreCase(currentCharacterName))
+		{
+			return username + " · My character";
+		}
+		return username + " · Public profile";
 	}
 
 	private String statusText()
@@ -449,7 +502,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 
 	private static JLabel wrapped(String text)
 	{
-		return new JLabel("<html><body style='width: 205px'>" + text + "</body></html>");
+		return SidebarUi.wrapped(text);
 	}
 
 	private static View parseView(String stored)

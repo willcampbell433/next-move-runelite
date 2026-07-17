@@ -4,7 +4,6 @@ import com.nextmove.api.ProfileResponse;
 import com.nextmove.links.LinkFactory;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.text.NumberFormat;
 import java.util.Locale;
 import javax.swing.Box;
@@ -90,26 +89,25 @@ public class BossesPanel extends JPanel
 		{
 			for (ProfileResponse.Trophy trophy : bosses.getTrophies())
 			{
-				add(new JLabel("• " + trophy.getLabel()));
+				add(wrapped("- " + trophy.getLabel()));
 			}
 		}
 
 		add(gap(10));
-		JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-		buttons.setOpaque(false);
+		JButton website = new JButton("Open full Boss Tracker");
+		website.addActionListener(event -> LinkBrowser.browse(
+			LinkFactory.account(profile.getUsername(), LinkFactory.View.BOSSES)));
 		if (challenge != null)
 		{
 			JButton wiki = new JButton("Open Wiki guide");
 			wiki.addActionListener(event -> LinkBrowser.browse(
 				LinkFactory.wiki(challenge.getWikiTitle())));
-			buttons.add(wiki);
+			add(SidebarUi.buttonStack(wiki, website));
 		}
-		JButton website = new JButton("Open full Boss Tracker");
-		website.addActionListener(event -> LinkBrowser.browse(
-			LinkFactory.account(profile.getUsername(), LinkFactory.View.BOSSES)));
-		buttons.add(website);
-		buttons.setAlignmentX(Component.LEFT_ALIGNMENT);
-		add(buttons);
+		else
+		{
+			add(SidebarUi.buttonStack(website));
+		}
 
 		revalidate();
 		repaint();
@@ -146,9 +144,7 @@ public class BossesPanel extends JPanel
 
 	private static JLabel wrapped(String text)
 	{
-		JLabel label = new JLabel("<html><body style='width: 205px'>" + text + "</body></html>");
-		label.setAlignmentX(Component.LEFT_ALIGNMENT);
-		return label;
+		return SidebarUi.wrapped(text);
 	}
 
 	private static Component gap(int height)

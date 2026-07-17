@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.nextmove.api.ProfileResponse;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,7 +25,8 @@ public class CoachPanelTest
 	@Test
 	public void rendersTheReadOnlyRecommendationAndEvidence()
 	{
-		String text = render(fixture("full-profile.json").getProfile());
+		CoachPanel panel = renderPanel(fixture("full-profile.json").getProfile());
+		String text = text(panel);
 		assertTrue(text.contains("Start the Inferno cape grind"));
 		assertTrue(text.contains("The missing account capstone is Zuk."));
 		assertTrue(text.contains("7 TzTok-Jad KC proves the foundation."));
@@ -35,6 +37,9 @@ public class CoachPanelTest
 		assertFalse(text.contains("\nNot today\n"));
 		assertFalse(text.contains("\nSave\n"));
 		assertFalse(text.contains("\nTrack\n"));
+		assertFalse(text.contains("•"));
+		assertFalse(text.contains("width: 205px"));
+		assertFalse(hasLayout(panel, FlowLayout.class));
 	}
 
 	@Test
@@ -47,13 +52,45 @@ public class CoachPanelTest
 
 	private static String render(ProfileResponse.Profile profile)
 	{
-		AtomicReference<String> rendered = new AtomicReference<>();
+		return text(renderPanel(profile));
+	}
+
+	private static CoachPanel renderPanel(ProfileResponse.Profile profile)
+	{
+		AtomicReference<CoachPanel> rendered = new AtomicReference<>();
 		onEdt(() -> {
 			CoachPanel panel = new CoachPanel();
 			panel.render(profile);
-			rendered.set(String.join("\n", textOf(panel)));
+			rendered.set(panel);
 		});
 		return rendered.get();
+	}
+
+	private static String text(Component panel)
+	{
+		AtomicReference<String> rendered = new AtomicReference<>();
+		onEdt(() -> rendered.set(String.join("\n", textOf(panel))));
+		return rendered.get();
+	}
+
+	private static boolean hasLayout(Component component, Class<?> layoutType)
+	{
+		if (component instanceof Container)
+		{
+			Container container = (Container) component;
+			if (layoutType.isInstance(container.getLayout()))
+			{
+				return true;
+			}
+			for (Component child : container.getComponents())
+			{
+				if (hasLayout(child, layoutType))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private static ProfileResponse fixture(String name)

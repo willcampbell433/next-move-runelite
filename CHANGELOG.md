@@ -4,7 +4,14 @@ All notable changes to Next Move for RuneLite will be documented here.
 
 ## Unreleased
 
-- Nothing yet.
+- Reworked the sidebar hierarchy for RuneLite's narrow panel width.
+- Moved Account, Coach, and Bosses navigation above the page content.
+- Made Settings a separate screen and collapsed player lookup after a profile
+  loads.
+- Fixed clipped copy, overflowing action rows, unsupported list glyphs, and
+  false friend labels.
+- Retry local-character detection after login until RuneLite exposes the name.
+- Limit the Account trophy preview while keeping the full list on the website.
 
 ## 0.1.0
 

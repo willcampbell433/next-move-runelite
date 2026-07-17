@@ -42,16 +42,19 @@ public class ProfileController
 			return;
 		}
 		String selected = username == null ? "" : username.trim();
+		boolean effectiveFriend = friend
+			&& currentCharacter != null
+			&& !selected.equalsIgnoreCase(currentCharacter);
 		if (state.getStatus() == ProfileState.Status.LOADING
 			&& Objects.equals(state.getActiveUsername(), selected)
-			&& state.isFriendActive() == friend)
+			&& state.isFriendActive() == effectiveFriend)
 		{
 			return;
 		}
 
 		long requestGeneration = ++generation;
 		cancelInFlight();
-		render(ProfileState.loading(selected, currentCharacter, friend));
+		render(ProfileState.loading(selected, currentCharacter, effectiveFriend));
 		inFlight = loader.load(selected, new NextMoveClient.Callback()
 		{
 			@Override
@@ -60,7 +63,7 @@ public class ProfileController
 				SwingUtilities.invokeLater(() -> acceptSuccess(
 					requestGeneration,
 					selected,
-					friend,
+					effectiveFriend,
 					response));
 			}
 
@@ -70,7 +73,7 @@ public class ProfileController
 				SwingUtilities.invokeLater(() -> acceptFailure(
 					requestGeneration,
 					selected,
-					friend,
+					effectiveFriend,
 					failure));
 			}
 		});

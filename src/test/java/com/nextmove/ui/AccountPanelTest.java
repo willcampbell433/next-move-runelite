@@ -1,6 +1,9 @@
 package com.nextmove.ui;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.nextmove.api.ProfileResponse;
 import java.awt.Component;
 import java.awt.Container;
@@ -34,6 +37,8 @@ public class AccountPanelTest
 		assertTrue(text.contains("Quests"));
 		assertTrue(text.contains("Start the Inferno cape grind"));
 		assertTrue(text.contains("Fire Cape Acquired"));
+		assertFalse(text.contains("•"));
+		assertFalse(text.contains("width: 205px"));
 	}
 
 	@Test
@@ -43,6 +48,16 @@ public class AccountPanelTest
 		assertTrue(text.contains("Partial public score"));
 		assertTrue(text.contains("Quests — Unavailable"));
 		assertFalse(text.contains("Quests 0"));
+	}
+
+	@Test
+	public void keepsTheSidebarCompactWhenManyTrophiesExist()
+	{
+		String text = render(fixtureWithTrophies(6).getProfile());
+
+		assertTrue(text.contains("Trophy 4"));
+		assertFalse(text.contains("Trophy 5"));
+		assertTrue(text.contains("+ 2 more on the website"));
 	}
 
 	private static String render(ProfileResponse.Profile profile)
@@ -67,6 +82,32 @@ public class AccountPanelTest
 			return new Gson().fromJson(
 				new InputStreamReader(stream, StandardCharsets.UTF_8),
 				ProfileResponse.class);
+		}
+		catch (IOException exception)
+		{
+			throw new IllegalStateException(exception);
+		}
+	}
+
+	private static ProfileResponse fixtureWithTrophies(int count)
+	{
+		try (InputStream stream = AccountPanelTest.class.getResourceAsStream("/fixtures/full-profile.json"))
+		{
+			JsonObject root = new JsonParser().parse(
+				new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+			JsonArray trophies = new JsonArray();
+			for (int index = 1; index <= count; index += 1)
+			{
+				JsonObject trophy = new JsonObject();
+				trophy.addProperty("id", "trophy-" + index);
+				trophy.addProperty("label", "Trophy " + index);
+				trophy.addProperty("iconKey", "TEST");
+				trophies.add(trophy);
+			}
+			root.getAsJsonObject("profile")
+				.getAsJsonObject("bosses")
+				.add("trophies", trophies);
+			return new Gson().fromJson(root, ProfileResponse.class);
 		}
 		catch (IOException exception)
 		{

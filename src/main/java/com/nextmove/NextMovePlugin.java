@@ -10,6 +10,7 @@ import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.Player;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.GameTick;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -45,6 +46,7 @@ public class NextMovePlugin extends Plugin
 	private ProfileController controller;
 	private NavigationButton navigationButton;
 	private NextMoveSession session;
+	private boolean currentCharacterObserved;
 
 	@Override
 	protected void startUp()
@@ -111,9 +113,10 @@ public class NextMovePlugin extends Plugin
 			},
 			config::publicLookupEnabled);
 		session.start();
+		currentCharacterObserved = false;
 		if (client.getGameState() == GameState.LOGGED_IN)
 		{
-			loadLocalPlayer();
+			currentCharacterObserved = loadLocalPlayer();
 		}
 	}
 
@@ -128,6 +131,7 @@ public class NextMovePlugin extends Plugin
 		navigationButton = null;
 		controller = null;
 		panel = null;
+		currentCharacterObserved = false;
 	}
 
 	@Subscribe
@@ -139,13 +143,25 @@ public class NextMovePlugin extends Plugin
 		}
 		if (event.getGameState() == GameState.LOGGED_IN)
 		{
-			loadLocalPlayer();
+			currentCharacterObserved = loadLocalPlayer();
 		}
 		else if (event.getGameState() == GameState.LOGIN_SCREEN
 			|| event.getGameState() == GameState.HOPPING
 			|| event.getGameState() == GameState.CONNECTION_LOST)
 		{
+			currentCharacterObserved = false;
 			session.loggedOut();
+		}
+	}
+
+	@Subscribe
+	public void onGameTick(GameTick event)
+	{
+		if (session != null
+			&& !currentCharacterObserved
+			&& client.getGameState() == GameState.LOGGED_IN)
+		{
+			currentCharacterObserved = loadLocalPlayer();
 		}
 	}
 
@@ -163,13 +179,15 @@ public class NextMovePlugin extends Plugin
 		session.consentChanged(enabled);
 	}
 
-	private void loadLocalPlayer()
+	private boolean loadLocalPlayer()
 	{
 		Player localPlayer = client.getLocalPlayer();
 		if (localPlayer != null && localPlayer.getName() != null)
 		{
 			session.loggedIn(localPlayer.getName());
+			return true;
 		}
+		return false;
 	}
 
 	@Provides
