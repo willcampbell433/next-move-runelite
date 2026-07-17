@@ -59,7 +59,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 
 	private enum View
 	{
-		ACCOUNT("Account"),
+		ACCOUNT("Power"),
 		COACH("Coach"),
 		BOSSES("Bosses");
 
@@ -352,7 +352,10 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 	private JPanel friendLookupPanel()
 	{
 		JPanel panel = vertical();
-		panel.add(new JLabel("Look up friend"));
+		JLabel label = new JLabel("Look up friend", JLabel.CENTER);
+		label.setAlignmentX(Component.LEFT_ALIGNMENT);
+		label.setMaximumSize(new Dimension(Integer.MAX_VALUE, label.getPreferredSize().height));
+		panel.add(label);
 		JTextField username = new JTextField();
 		username.setMaximumSize(new Dimension(Integer.MAX_VALUE, username.getPreferredSize().height));
 		panel.add(username);

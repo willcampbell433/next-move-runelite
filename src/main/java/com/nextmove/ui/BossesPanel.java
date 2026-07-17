@@ -36,7 +36,7 @@ public class BossesPanel extends JPanel
 			JLabel score = new JLabel("Boss Bravery " + bosses.getScore() + " / 100");
 			score.setFont(FontManager.getRunescapeBoldFont());
 			add(score);
-			add(new JLabel(bosses.getTierLabel()));
+			add(new JLabel(publicTierLabel(bosses.getTierLabel())));
 			if (bosses.getNextTierScore() != null)
 			{
 				int points = Math.max(0, bosses.getNextTierScore() - bosses.getScore());
@@ -120,7 +120,7 @@ public class BossesPanel extends JPanel
 			case 10:
 				return "Left Lumbridge";
 			case 25:
-				return "Officially Has Balls";
+				return "Proven Adventurer";
 			case 40:
 				return "Certified Menace";
 			case 60:
@@ -132,6 +132,13 @@ public class BossesPanel extends JPanel
 			default:
 				return "next tier";
 		}
+	}
+
+	private static String publicTierLabel(String label)
+	{
+		return "Officially Has Balls".equals(label)
+			? "Proven Adventurer"
+			: label;
 	}
 
 	private static JLabel section(String text)

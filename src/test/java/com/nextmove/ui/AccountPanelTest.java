@@ -29,7 +29,7 @@ public class AccountPanelTest
 	public void rendersTheFullAccountVerdictAndTrophies()
 	{
 		String text = render(fixture("full-profile.json").getProfile());
-		assertTrue(text.contains("9,260 / 10,000"));
+		assertTrue(text.contains("92.6 / 100"));
 		assertTrue(text.contains("Giga Chad"));
 		assertTrue(text.contains("Skills"));
 		assertTrue(text.contains("Combat"));
@@ -38,6 +38,8 @@ public class AccountPanelTest
 		assertTrue(text.contains("Quests"));
 		assertTrue(text.contains("Start the Inferno cape grind"));
 		assertTrue(text.contains("Fire Cape Acquired"));
+		assertTrue(text.contains("How is this score calculated?"));
+		assertFalse(text.contains("Open on Next Move"));
 		assertFalse(text.contains("•"));
 		assertFalse(text.contains("width: 205px"));
 	}

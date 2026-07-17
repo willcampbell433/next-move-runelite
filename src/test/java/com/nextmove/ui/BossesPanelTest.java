@@ -1,6 +1,8 @@
 package com.nextmove.ui;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.nextmove.api.ProfileResponse;
 import java.awt.Component;
 import java.awt.Container;
@@ -50,6 +52,18 @@ public class BossesPanelTest
 		String text = render(fixture("partial-profile.json").getProfile());
 		assertTrue(text.contains("Boss Bravery unavailable"));
 		assertFalse(text.contains("Boss Bravery 0"));
+	}
+
+	@Test
+	public void usesPublicFacingLanguageForTheFirstBraveryTier()
+	{
+		String text = render(fixtureWithTier(
+			25,
+			"Officially Has Balls",
+			40).getProfile());
+
+		assertTrue(text.contains("Proven Adventurer"));
+		assertFalse(text.contains("Officially Has Balls"));
 	}
 
 	private static String render(ProfileResponse.Profile profile)
@@ -106,6 +120,24 @@ public class BossesPanelTest
 			return new Gson().fromJson(
 				new InputStreamReader(stream, StandardCharsets.UTF_8),
 				ProfileResponse.class);
+		}
+		catch (IOException exception)
+		{
+			throw new IllegalStateException(exception);
+		}
+	}
+
+	private static ProfileResponse fixtureWithTier(int score, String tierLabel, int nextTierScore)
+	{
+		try (InputStream stream = BossesPanelTest.class.getResourceAsStream("/fixtures/full-profile.json"))
+		{
+			JsonObject root = new JsonParser().parse(
+				new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+			JsonObject bosses = root.getAsJsonObject("profile").getAsJsonObject("bosses");
+			bosses.addProperty("score", score);
+			bosses.addProperty("tierLabel", tierLabel);
+			bosses.addProperty("nextTierScore", nextTierScore);
+			return new Gson().fromJson(root, ProfileResponse.class);
 		}
 		catch (IOException exception)
 		{

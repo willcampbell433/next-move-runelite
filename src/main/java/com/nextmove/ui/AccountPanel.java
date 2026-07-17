@@ -4,7 +4,6 @@ import com.nextmove.api.ProfileResponse;
 import com.nextmove.links.LinkFactory;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.text.NumberFormat;
 import java.util.Locale;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -30,9 +29,12 @@ public class AccountPanel extends JPanel
 		add(section("ACCOUNT POWER"));
 		String accountScore = account.getScore() == null
 			? "Unavailable"
-			: NumberFormat.getIntegerInstance(Locale.US).format(account.getScore())
-				+ " / "
-				+ NumberFormat.getIntegerInstance(Locale.US).format(account.getMaximumScore());
+			: String.format(
+				Locale.US,
+				"%.1f / 100",
+				account.getMaximumScore() <= 0
+					? 0.0
+					: account.getScore() * 100.0 / account.getMaximumScore());
 		JLabel score = new JLabel(accountScore);
 		score.setFont(FontManager.getRunescapeBoldFont());
 		add(score);
@@ -88,7 +90,7 @@ public class AccountPanel extends JPanel
 		}
 
 		add(gap(10));
-		JButton website = new JButton("Open on Next Move");
+		JButton website = new JButton("How is this score calculated?");
 		website.setAlignmentX(Component.LEFT_ALIGNMENT);
 		website.addActionListener(event -> LinkBrowser.browse(
 			LinkFactory.account(profile.getUsername(), LinkFactory.View.STATS)));

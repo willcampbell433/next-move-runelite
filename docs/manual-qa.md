@@ -13,9 +13,9 @@ Plugin Hub review. Do not automate any interaction with the game.
    name but makes no request and displays **Load public profile**.
 4. Choose **Load profile**, accept the warning, and confirm Account loads for
    the logged-in character.
-5. Confirm Account displays the overall score, tier, five category scores, and
-   titles without clipping at the normal RuneLite sidebar width. Account,
-   Coach, and Bosses must remain visible above the content.
+5. Confirm Power displays the overall score out of 100, tier, five category
+   scores, and titles without clipping at the normal RuneLite sidebar width.
+   Power, Coach, and Bosses must remain visible above the content.
 6. Open Coach and confirm exactly one recommendation, its rationale, unlock,
    and full Wiki guide link render correctly.
 7. Open Bosses and confirm Boss Bravery, the next challenge, attempted bosses

@@ -14,6 +14,10 @@ All notable changes to Next Move for RuneLite will be documented here.
 - Limit the Account trophy preview while keeping the full list on the website.
 - Align every vertical sidebar section to the same left edge and normalize smart
   punctuation for RuneLite's display font.
+- Rename the cramped Account tab to Power and present Account Power on a
+  familiar 100-point scale.
+- Add an explicit score-calculation link, center player lookup controls, wrap
+  long status messages, and use public-facing Boss Bravery tier language.
 
 ## 0.1.0
 

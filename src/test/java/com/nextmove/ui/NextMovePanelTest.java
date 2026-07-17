@@ -95,12 +95,12 @@ public class NextMovePanelTest
 			"lastwilll", "lastwilll", false, response)));
 
 		String text = harness.text();
-		assertTrue(text.contains("Account"));
+		assertTrue(text.contains("Power"));
 		assertTrue(text.contains("Coach"));
 		assertTrue(text.contains("Bosses"));
-		assertTrue(text.indexOf("Account") < text.indexOf("ACCOUNT POWER"));
+		assertTrue(text.indexOf("Power") < text.indexOf("ACCOUNT POWER"));
 		assertEquals(Component.LEFT_ALIGNMENT, harness.alignmentOf("lastwilll · My character"), 0.0f);
-		for (String label : new String[] {"Account", "Coach", "Bosses"})
+		for (String label : new String[] {"Power", "Coach", "Bosses"})
 		{
 			Insets margin = harness.buttonMargin(label);
 			assertTrue(margin.left <= 4);
@@ -133,6 +133,9 @@ public class NextMovePanelTest
 		assertEquals(0, harness.count(JTextField.class));
 		harness.click("Look up another player");
 		assertEquals(1, harness.count(JTextField.class));
+		JLabel lookupLabel = harness.label("Look up friend");
+		assertEquals(JLabel.CENTER, lookupLabel.getHorizontalAlignment());
+		assertEquals(Component.LEFT_ALIGNMENT, lookupLabel.getAlignmentX(), 0.0f);
 	}
 
 	@Test
@@ -291,6 +294,17 @@ public class NextMovePanelTest
 				AbstractButton found = button(panel, label);
 				assertNotNull("Missing button " + label, found);
 				value.set(found.getMargin());
+			});
+			return value.get();
+		}
+
+		JLabel label(String text)
+		{
+			AtomicReference<JLabel> value = new AtomicReference<>();
+			onEdt(() -> {
+				Component found = componentWithText(panel, text);
+				assertTrue("Expected label " + text, found instanceof JLabel);
+				value.set((JLabel) found);
 			});
 			return value.get();
 		}
