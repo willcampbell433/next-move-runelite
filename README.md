@@ -5,9 +5,9 @@
 Next Move is a read-only RuneLite sidebar for answering the most important
 question in Old School RuneScape: **what should I do next?**
 
-It turns public account data into a playful account verdict, one focused
-recommendation, and a boss-progression view without replacing the full Next
-Move website.
+It turns public account data into a playful account verdict, a focused deck of
+short-term recommendations, and a boss-progression view without replacing the
+full Next Move website.
 
 Explore the full coach at [osrs-helper-six.vercel.app](https://osrs-helper-six.vercel.app).
 
@@ -15,8 +15,8 @@ Explore the full coach at [osrs-helper-six.vercel.app](https://osrs-helper-six.v
 
 - **Account** — overall account score, progression tier, category scores, and
   earned titles.
-- **Coach** — one short-term recommendation with the reason it fits and the
-  next meaningful unlock.
+- **Coach** — a bounded deck of short-term recommendations, each with the
+  reason it fits and the next meaningful unlock.
 - **Bosses** — Boss Bravery score, next boss challenge, attempted kill counts,
   and boss achievements.
 - **Friend lookup** — temporarily inspect another public OSRS account and

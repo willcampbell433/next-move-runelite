@@ -20,7 +20,7 @@ accept a custom server address and does not follow redirects.
 The response can contain:
 
 - a public account score, tier, category scores, and titles;
-- one public recommendation and its related Wiki page;
+- a bounded deck of public recommendations and their related Wiki pages;
 - a boss-progression score, challenge, attempted kill counts, and achievements;
   and
 - freshness and source labels used to explain the analysis.
@@ -41,9 +41,9 @@ Only two preferences are stored through RuneLite configuration:
 - whether public lookup is enabled; and
 - the selected panel view.
 
-Loaded profiles and friend lookups remain in memory only. Disabling public
-lookup cancels active requests and clears the loaded profile. Closing the plugin
-does the same.
+Loaded profiles, friend lookups, and the selected recommendation for each
+username remain in memory only. Disabling public lookup cancels active requests
+and clears the loaded profile. Closing the plugin does the same.
 
 ## Server behavior
 
