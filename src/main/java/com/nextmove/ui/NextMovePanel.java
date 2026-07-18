@@ -35,7 +35,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 	private static final String CONFIG_GROUP = "next-move";
 	private static final String LOOKUP_KEY = "publicLookupEnabled";
 	private static final String VIEW_KEY = "selectedView";
-	private static final String HOST = "osrs-helper-six.vercel.app";
+	private static final String HOST = "osrsnextmove.com";
 	private static final Pattern USERNAME = Pattern.compile("[A-Za-z0-9 _-]{1,12}");
 
 	interface Settings

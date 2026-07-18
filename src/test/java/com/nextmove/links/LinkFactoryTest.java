@@ -10,7 +10,7 @@ public class LinkFactoryTest
 	public void buildsFixedNextMoveLinks()
 	{
 		assertEquals(
-			"https://osrs-helper-six.vercel.app/bosses?player=italiaboi69",
+			"https://osrsnextmove.com/bosses?player=italiaboi69",
 			LinkFactory.account("italiaboi69", LinkFactory.View.BOSSES));
 	}
 
@@ -26,7 +26,7 @@ public class LinkFactoryTest
 	public void exposesOnlyTheFixedSetupPage()
 	{
 		assertEquals(
-			"https://osrs-helper-six.vercel.app/runelite",
+			"https://osrsnextmove.com/runelite",
 			LinkFactory.wikiSyncSetup());
 	}
 
@@ -34,7 +34,7 @@ public class LinkFactoryTest
 	public void exposesAPlayerIndependentScoringGuide()
 	{
 		assertEquals(
-			"https://osrs-helper-six.vercel.app/scoring",
+			"https://osrsnextmove.com/scoring",
 			LinkFactory.scoringGuide());
 	}
 

@@ -7,7 +7,7 @@ import okhttp3.HttpUrl;
 public final class LinkFactory
 {
 	private static final HttpUrl NEXT_MOVE = Objects.requireNonNull(
-		HttpUrl.parse("https://osrs-helper-six.vercel.app"));
+		HttpUrl.parse("https://osrsnextmove.com"));
 	private static final HttpUrl WIKI = Objects.requireNonNull(
 		HttpUrl.parse("https://oldschool.runescape.wiki"));
 	private static final Pattern USERNAME = Pattern.compile("[A-Za-z0-9 _-]{1,12}");

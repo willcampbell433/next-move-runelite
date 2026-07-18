@@ -24,7 +24,7 @@ Plugin Hub review. Do not automate any interaction with the game.
 7. Open Bosses and confirm Boss Bravery, the next challenge, attempted bosses
    with positive KC, and achievements render correctly.
 8. Open every external link and confirm it uses the system browser and stays on
-   either `osrs-helper-six.vercel.app` or `oldschool.runescape.wiki`.
+   either `osrsnextmove.com` or `oldschool.runescape.wiki`.
 9. Look up `italiaboi69`, confirm the friend state is visually clear, and use
    **Return to my character**. The lookup field should stay collapsed until
    **Look up another player** is chosen. When open, **Look up player** should
