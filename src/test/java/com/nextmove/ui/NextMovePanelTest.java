@@ -51,7 +51,7 @@ public class NextMovePanelTest
 
 		String text = harness.text();
 		assertTrue(text.contains("Load public profile"));
-		assertTrue(text.contains("osrs-helper-six.vercel.app"));
+		assertTrue(text.contains("osrsnextmove.com"));
 		assertFalse(text.contains("Look up friend"));
 		assertEquals(0, harness.actions.loadCount);
 	}

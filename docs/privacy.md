@@ -12,7 +12,7 @@ When public lookup is enabled, the plugin sends:
 - ordinary HTTPS request metadata, including the connecting IP address.
 
 Requests go only to the fixed endpoint
-`https://osrs-helper-six.vercel.app/api/runelite/profile`. The plugin does not
+`https://osrsnextmove.com/api/runelite/profile`. The plugin does not
 accept a custom server address and does not follow redirects.
 
 ## What the plugin reads

@@ -21,7 +21,7 @@ public class NextMoveClient
 {
 	private static final long MAX_RESPONSE_BYTES = 262_144L;
 	private static final HttpUrl ENDPOINT = Objects.requireNonNull(
-		HttpUrl.parse("https://osrs-helper-six.vercel.app/api/runelite/profile"));
+		HttpUrl.parse("https://osrsnextmove.com/api/runelite/profile"));
 	private static final Pattern USERNAME = Pattern.compile("[A-Za-z0-9 _-]{1,12}");
 	private static final String USER_AGENT = "Next-Move-RuneLite/0.1.0";
 

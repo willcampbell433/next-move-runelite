@@ -29,7 +29,7 @@ public class NextMoveClientTest
 		Result result = load(factory, "italiaboi69");
 
 		assertEquals(
-			"https://osrs-helper-six.vercel.app/api/runelite/profile?player=italiaboi69",
+			"https://osrsnextmove.com/api/runelite/profile?player=italiaboi69",
 			factory.capturedRequest.url().toString());
 		assertEquals("GET", factory.capturedRequest.method());
 		assertEquals("application/json", factory.capturedRequest.header("Accept"));

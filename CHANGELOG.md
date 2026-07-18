@@ -34,3 +34,4 @@ All notable changes to Next Move for RuneLite will be documented here.
   directly selectable **Other ideas** list.
 - Isolated the selected recommendation per username and made the deck wrap
   instead of ending in an exhausted state.
+- Moved the fixed production endpoint and browser links to `osrsnextmove.com`.

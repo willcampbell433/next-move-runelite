@@ -9,7 +9,7 @@ It turns public account data into a playful account verdict, a focused deck of
 short-term recommendations, and a boss-progression view without replacing the
 full Next Move website.
 
-Explore the full coach at [osrs-helper-six.vercel.app](https://osrs-helper-six.vercel.app).
+Explore the full coach at [osrsnextmove.com](https://osrsnextmove.com).
 
 ## What v0.1 includes
 
@@ -40,7 +40,7 @@ for quest-aware recommendations. Next Move does not require an account or a
 custom sync code for this visual companion.
 
 The plugin starts with public lookup disabled. Turning it on sends the selected
-OSRS username to `https://osrs-helper-six.vercel.app` over HTTPS. Disabling it
+OSRS username to `https://osrsnextmove.com` over HTTPS. Disabling it
 cancels active requests and clears the loaded profile from the panel.
 
 ## Privacy and data sources
