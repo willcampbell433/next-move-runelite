@@ -15,7 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.AbstractButton;
+import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import org.junit.Test;
 
@@ -74,6 +77,19 @@ public class AccountPanelTest
 		assertFalse(text.contains("“"));
 		assertFalse(text.contains("”"));
 		assertTrue(text.contains("&quot;a quick unlock.&quot;"));
+	}
+
+	@Test
+	public void scoreGuideActionIsFullWidthCenteredAndSeparatedFromFollowingContent()
+	{
+		AccountPanel panel = renderPanel(fixture("full-profile.json").getProfile());
+		JButton button = findButton(panel, "How is this score calculated?");
+
+		assertEquals(Integer.MAX_VALUE, button.getMaximumSize().width);
+		assertEquals(SwingConstants.CENTER, button.getHorizontalAlignment());
+		Component trailingSpace = panel.getComponent(panel.getComponentCount() - 1);
+		assertTrue(trailingSpace instanceof Box.Filler);
+		assertTrue(trailingSpace.getPreferredSize().height >= 6);
 	}
 
 	private static String render(ProfileResponse.Profile profile)
@@ -191,5 +207,28 @@ public class AccountPanelTest
 			}
 		}
 		return text;
+	}
+
+	private static JButton findButton(Container container, String text)
+	{
+		for (Component child : container.getComponents())
+		{
+			if (child instanceof JButton && text.equals(((JButton) child).getText()))
+			{
+				return (JButton) child;
+			}
+			if (child instanceof Container)
+			{
+				try
+				{
+					return findButton((Container) child, text);
+				}
+				catch (IllegalStateException ignored)
+				{
+					// Continue searching sibling containers.
+				}
+			}
+		}
+		throw new IllegalStateException("Missing button " + text);
 	}
 }
