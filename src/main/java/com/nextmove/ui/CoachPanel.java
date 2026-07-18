@@ -4,6 +4,8 @@ import com.nextmove.api.ProfileResponse;
 import com.nextmove.links.LinkFactory;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.List;
+import java.util.function.Consumer;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -22,9 +24,18 @@ public class CoachPanel extends JPanel
 
 	public void render(ProfileResponse.Profile profile)
 	{
+		render(profile, profile.getRecommendation(), List.of(), null, ignored -> { });
+	}
+
+	void render(
+		ProfileResponse.Profile profile,
+		ProfileResponse.Recommendation recommendation,
+		List<ProfileResponse.Recommendation> recommendations,
+		Runnable onNext,
+		Consumer<ProfileResponse.Recommendation> onSelect)
+	{
 		removeAll();
 		add(section("YOUR NEXT MOVE"));
-		ProfileResponse.Recommendation recommendation = profile.getRecommendation();
 		if (recommendation == null)
 		{
 			add(wrapped("No public recommendation is ready"));
@@ -64,16 +75,43 @@ public class CoachPanel extends JPanel
 			JButton wiki = new JButton("Open Wiki guide");
 			wiki.addActionListener(event -> LinkBrowser.browse(
 				LinkFactory.wiki(recommendation.getWikiTitle())));
-			add(SidebarUi.buttonStack(wiki, website));
+			if (onNext == null)
+			{
+				add(SidebarUi.buttonStack(wiki, website));
+			}
+			else
+			{
+				JButton next = new JButton("Next idea");
+				next.addActionListener(event -> onNext.run());
+				add(SidebarUi.buttonStack(wiki, next, website));
+			}
 		}
 		else
 		{
 			add(SidebarUi.buttonStack(website));
 		}
 
+		if (recommendation != null && recommendations.size() > 1)
+		{
+			add(gap(14));
+			add(section("OTHER IDEAS"));
+			for (ProfileResponse.Recommendation alternative : recommendations)
+			{
+				if (alternative.getId().equals(recommendation.getId()))
+				{
+					continue;
+				}
+				JButton select = new JButton(alternative.getTitle());
+				select.addActionListener(event -> onSelect.accept(alternative));
+				add(gap(4));
+				add(SidebarUi.buttonStack(select));
+			}
+		}
+
 		add(gap(12));
-		add(wrapped(
-			"Tracking, passing, and completing recommendations stay on the Next Move website in this version."));
+		add(wrapped(recommendations.size() > 1
+			? "Browse ideas here. Done, goal tracking, and full history stay on the Next Move website."
+			: "Tracking and completing recommendations stay on the Next Move website."));
 
 		revalidate();
 		repaint();

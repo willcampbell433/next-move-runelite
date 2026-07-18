@@ -24,6 +24,7 @@ public class ProfileResponse
 		private String questData;
 		private Account account;
 		private Recommendation recommendation;
+		private List<Recommendation> recommendations;
 		private Bosses bosses;
 	}
 

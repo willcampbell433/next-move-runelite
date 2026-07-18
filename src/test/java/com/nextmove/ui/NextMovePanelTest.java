@@ -111,6 +111,49 @@ public class NextMovePanelTest
 	}
 
 	@Test
+	public void nextIdeaCyclesAndWrapsOnlyForTheActiveAccount()
+	{
+		Harness harness = panel(true);
+		ProfileResponse jared = fixture("full-profile.json");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"italiaboi69", "lastwilll", true, jared)));
+		harness.click("Coach");
+		assertTrue(harness.text().contains("Start the Inferno cape grind"));
+
+		harness.click("Next idea");
+		String second = harness.text();
+		assertTrue(second.indexOf("Push Ranged to 100") < second.indexOf("OTHER IDEAS"));
+
+		harness.click("Next idea");
+		String wrapped = harness.text();
+		assertTrue(wrapped.indexOf("Start the Inferno cape grind") < wrapped.indexOf("OTHER IDEAS"));
+
+		ProfileResponse other = fixtureForUsername("full-profile.json", "no_noobs10");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"no_noobs10", "lastwilll", true, other)));
+		assertTrue(harness.text().contains("Start the Inferno cape grind"));
+	}
+
+	@Test
+	public void otherIdeasAreVisibleAndSelectable()
+	{
+		Harness harness = panel(true);
+		ProfileResponse response = fixture("full-profile.json");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"italiaboi69", "lastwilll", true, response)));
+		harness.click("Coach");
+
+		String initial = harness.text();
+		assertTrue(initial.contains("OTHER IDEAS"));
+		assertTrue(initial.contains("Push Ranged to 100"));
+
+		harness.click("Push Ranged to 100");
+		String selected = harness.text();
+		assertTrue(selected.indexOf("Push Ranged to 100") < selected.indexOf("OTHER IDEAS"));
+		assertTrue(selected.contains("Start the Inferno cape grind"));
+	}
+
+	@Test
 	public void settingsIsASeparateScreenInsteadOfStackingOverTheProfile()
 	{
 		Harness harness = panel(true);
@@ -195,6 +238,24 @@ public class NextMovePanelTest
 			return new Gson().fromJson(
 				new InputStreamReader(stream, StandardCharsets.UTF_8),
 				ProfileResponse.class);
+		}
+		catch (IOException exception)
+		{
+			throw new IllegalStateException(exception);
+		}
+	}
+
+	private static ProfileResponse fixtureForUsername(String name, String username)
+	{
+		try (InputStream stream = NextMovePanelTest.class.getResourceAsStream("/fixtures/" + name))
+		{
+			if (stream == null)
+			{
+				throw new IllegalStateException("Missing fixture " + name);
+			}
+			String json = new String(stream.readAllBytes(), StandardCharsets.UTF_8)
+				.replace("\"username\": \"italiaboi69\"", "\"username\": \"" + username + "\"");
+			return new Gson().fromJson(json, ProfileResponse.class);
 		}
 		catch (IOException exception)
 		{

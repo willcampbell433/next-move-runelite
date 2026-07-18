@@ -1,6 +1,7 @@
 package com.nextmove.ui;
 
 import com.nextmove.NextMoveConfig;
+import com.nextmove.api.ProfileResponse;
 import com.nextmove.links.LinkFactory;
 import com.nextmove.profile.ProfileController;
 import com.nextmove.profile.ProfileState;
@@ -10,7 +11,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
@@ -80,6 +84,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 	private boolean settingsOpen;
 	private boolean playerLookupOpen;
 	private View selectedView;
+	private final Map<String, String> selectedRecommendationIds = new HashMap<>();
 
 	public NextMovePanel(ConfigManager configManager, NextMoveConfig config)
 	{
@@ -286,8 +291,21 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 			}
 			else if (selectedView == View.COACH)
 			{
+				ProfileResponse.Profile profile = state.getProfile().getProfile();
+				List<ProfileResponse.Recommendation> recommendations = recommendationDeck(profile);
+				ProfileResponse.Recommendation recommendation = nextRecommendation(profile);
 				CoachPanel coach = new CoachPanel();
-				coach.render(state.getProfile().getProfile());
+				coach.render(
+					profile,
+					recommendation,
+					recommendations,
+					recommendations.size() > 1 ? () -> {
+						int current = recommendations.indexOf(recommendation);
+						ProfileResponse.Recommendation next = recommendations.get(
+							(current + 1) % recommendations.size());
+						selectRecommendation(profile, next);
+					} : null,
+					selected -> selectRecommendation(profile, selected));
 				panel.add(coach);
 			}
 			else
@@ -301,6 +319,46 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		return messagePanel(currentCharacterName == null
 			? "Log in or look up a friend to load a public profile."
 			: "Load " + currentCharacterName + " when you are ready.");
+	}
+
+	private ProfileResponse.Recommendation nextRecommendation(ProfileResponse.Profile profile)
+	{
+		List<ProfileResponse.Recommendation> recommendations = recommendationDeck(profile);
+		if (recommendations.isEmpty())
+		{
+			return null;
+		}
+		String selectedId = selectedRecommendationIds.get(accountKey(profile));
+		return recommendations.stream()
+			.filter(recommendation -> recommendation.getId().equals(selectedId))
+			.findFirst()
+			.orElse(recommendations.get(0));
+	}
+
+	private void selectRecommendation(
+		ProfileResponse.Profile profile,
+		ProfileResponse.Recommendation recommendation)
+	{
+		selectedRecommendationIds.put(accountKey(profile), recommendation.getId());
+		rebuild();
+	}
+
+	private static List<ProfileResponse.Recommendation> recommendationDeck(
+		ProfileResponse.Profile profile)
+	{
+		List<ProfileResponse.Recommendation> recommendations = profile.getRecommendations();
+		if (recommendations == null || recommendations.isEmpty())
+		{
+			return profile.getRecommendation() == null
+				? List.of()
+				: List.of(profile.getRecommendation());
+		}
+		return recommendations;
+	}
+
+	private static String accountKey(ProfileResponse.Profile profile)
+	{
+		return profile.getUsername().trim().toLowerCase(Locale.ROOT);
 	}
 
 	private JPanel retryPanel(String message)
