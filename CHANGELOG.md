@@ -30,3 +30,7 @@ All notable changes to Next Move for RuneLite will be documented here.
   scrollbar instead of clipping its final characters.
 - Made the player lookup action span the full sidebar width with clear spacing
   below the username field.
+- Added a bounded Coach recommendation deck with **Next idea** cycling and a
+  directly selectable **Other ideas** list.
+- Isolated the selected recommendation per username and made the deck wrap
+  instead of ending in an exhausted state.

@@ -16,8 +16,11 @@ Plugin Hub review. Do not automate any interaction with the game.
 5. Confirm Power displays the overall score out of 100, tier, five category
    scores, and titles without clipping at the normal RuneLite sidebar width.
    Power, Coach, and Bosses must remain visible above the content.
-6. Open Coach and confirm exactly one recommendation, its rationale, unlock,
-   and full Wiki guide link render correctly.
+6. Open Coach and confirm the primary recommendation, its rationale, unlock,
+   and full Wiki guide link render correctly. Use **Next idea** repeatedly and
+   confirm the bounded deck wraps instead of becoming exhausted. Choose an
+   entry under **Other ideas** and confirm it becomes the primary card without
+   affecting another username.
 7. Open Bosses and confirm Boss Bravery, the next challenge, attempted bosses
    with positive KC, and achievements render correctly.
 8. Open every external link and confirm it uses the system browser and stays on
