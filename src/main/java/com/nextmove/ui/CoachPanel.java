@@ -22,12 +22,23 @@ public class CoachPanel extends JPanel
 
 	public void render(ProfileResponse.Profile profile)
 	{
+		render(profile, profile.getRecommendation(), false, null, null);
+	}
+
+	void render(
+		ProfileResponse.Profile profile,
+		ProfileResponse.Recommendation recommendation,
+		boolean deckExhausted,
+		Runnable onPass,
+		Runnable onRestore)
+	{
 		removeAll();
 		add(section("YOUR NEXT MOVE"));
-		ProfileResponse.Recommendation recommendation = profile.getRecommendation();
 		if (recommendation == null)
 		{
-			add(wrapped("No public recommendation is ready"));
+			add(wrapped(deckExhausted
+				? "You passed every suggestion for this account."
+				: "No public recommendation is ready"));
 		}
 		else
 		{
@@ -64,16 +75,35 @@ public class CoachPanel extends JPanel
 			JButton wiki = new JButton("Open Wiki guide");
 			wiki.addActionListener(event -> LinkBrowser.browse(
 				LinkFactory.wiki(recommendation.getWikiTitle())));
-			add(SidebarUi.buttonStack(wiki, website));
+			if (onPass == null)
+			{
+				add(SidebarUi.buttonStack(wiki, website));
+			}
+			else
+			{
+				JButton pass = new JButton("Pass");
+				pass.addActionListener(event -> onPass.run());
+				add(SidebarUi.buttonStack(wiki, pass, website));
+			}
 		}
 		else
 		{
-			add(SidebarUi.buttonStack(website));
+			if (deckExhausted && onRestore != null)
+			{
+				JButton restore = new JButton("Restore passed ideas");
+				restore.addActionListener(event -> onRestore.run());
+				add(SidebarUi.buttonStack(restore, website));
+			}
+			else
+			{
+				add(SidebarUi.buttonStack(website));
+			}
 		}
 
 		add(gap(12));
-		add(wrapped(
-			"Tracking, passing, and completing recommendations stay on the Next Move website in this version."));
+		add(wrapped(onPass == null && onRestore == null
+			? "Tracking and completing recommendations stay on the Next Move website."
+			: "Pass only affects this account in this RuneLite session. Done and goal tracking stay on the website."));
 
 		revalidate();
 		repaint();

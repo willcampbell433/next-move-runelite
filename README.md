@@ -24,8 +24,9 @@ Explore the full coach at [osrs-helper-six.vercel.app](https://osrs-helper-six.v
 - **Safe links** — open the relevant full OSRS Wiki guide or the matching Next
   Move website page in the system browser.
 
-Recommendation feedback such as **Done** and **Not today** remains on the
-website for this first release.
+The Coach can **Pass** through a bounded public recommendation deck. Passed
+ideas stay isolated per username for the current RuneLite session. Durable
+**Done**, goal tracking, and recommendation history remain on the website.
 
 ## Setup
 

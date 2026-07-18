@@ -63,7 +63,37 @@ public final class ProfileValidator
 		{
 			validateRecommendation(profile.getRecommendation());
 		}
+		validateRecommendationDeck(profile);
 		validateBosses(profile.getBosses());
+	}
+
+	private static void validateRecommendationDeck(ProfileResponse.Profile profile)
+	{
+		List<Recommendation> recommendations = profile.getRecommendations();
+		if (recommendations == null)
+		{
+			return;
+		}
+		require(recommendations.size() <= 6,
+			"Recommendations must contain at most six items");
+		Set<String> seen = new HashSet<>();
+		for (Recommendation recommendation : recommendations)
+		{
+			require(recommendation != null, "Recommendation is required");
+			validateRecommendation(recommendation);
+			require(seen.add(recommendation.getId()), "Recommendation ids must be distinct");
+		}
+		if (profile.getRecommendation() == null)
+		{
+			require(recommendations.isEmpty(),
+				"Recommendation deck must be empty without a primary recommendation");
+		}
+		else
+		{
+			require(!recommendations.isEmpty()
+					&& profile.getRecommendation().getId().equals(recommendations.get(0).getId()),
+				"Recommendation deck must begin with the primary recommendation");
+		}
 	}
 
 	private static void validateAccount(Account account)

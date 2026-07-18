@@ -40,6 +40,31 @@
       "nextMoveView": "bosses",
       "wikiTitle": "Inferno"
     },
+    "recommendations": [
+      {
+        "id": "boss:tzkal_zuk:1",
+        "category": "BOSS",
+        "title": "Start the Inferno cape grind",
+        "rationale": "The missing account capstone is Zuk.",
+        "evidence": [
+          "7 TzTok-Jad KC proves the foundation.",
+          "The public account record supports an Inferno attempt."
+        ],
+        "unlock": "First Inferno completion",
+        "nextMoveView": "bosses",
+        "wikiTitle": "Inferno"
+      },
+      {
+        "id": "skill:ranged:100",
+        "category": "SKILLING",
+        "title": "Push Ranged to 100",
+        "rationale": "A short mastery checkpoint keeps the account moving.",
+        "evidence": ["Ranged 99 clears the prerequisite."],
+        "unlock": "The next Ranged mastery checkpoint",
+        "nextMoveView": "coach",
+        "wikiTitle": "Ranged training"
+      }
+    ],
     "bosses": {
       "score": 70,
       "maximumScore": 100,

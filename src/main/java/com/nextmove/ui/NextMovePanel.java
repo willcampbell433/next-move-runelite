@@ -1,6 +1,7 @@
 package com.nextmove.ui;
 
 import com.nextmove.NextMoveConfig;
+import com.nextmove.api.ProfileResponse;
 import com.nextmove.links.LinkFactory;
 import com.nextmove.profile.ProfileController;
 import com.nextmove.profile.ProfileState;
@@ -10,8 +11,13 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -80,6 +86,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 	private boolean settingsOpen;
 	private boolean playerLookupOpen;
 	private View selectedView;
+	private final Map<String, Set<String>> passedRecommendationIds = new HashMap<>();
 
 	public NextMovePanel(ConfigManager configManager, NextMoveConfig config)
 	{
@@ -286,8 +293,25 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 			}
 			else if (selectedView == View.COACH)
 			{
+				ProfileResponse.Profile profile = state.getProfile().getProfile();
+				ProfileResponse.Recommendation recommendation = nextRecommendation(profile);
+				boolean deckExhausted = recommendation == null
+					&& !recommendationDeck(profile).isEmpty();
 				CoachPanel coach = new CoachPanel();
-				coach.render(state.getProfile().getProfile());
+				coach.render(
+					profile,
+					recommendation,
+					deckExhausted,
+					recommendation == null ? null : () -> {
+						passedRecommendationIds
+							.computeIfAbsent(accountKey(profile), ignored -> new HashSet<>())
+							.add(recommendation.getId());
+						rebuild();
+					},
+					deckExhausted ? () -> {
+						passedRecommendationIds.remove(accountKey(profile));
+						rebuild();
+					} : null);
 				panel.add(coach);
 			}
 			else
@@ -301,6 +325,38 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		return messagePanel(currentCharacterName == null
 			? "Log in or look up a friend to load a public profile."
 			: "Load " + currentCharacterName + " when you are ready.");
+	}
+
+	private ProfileResponse.Recommendation nextRecommendation(ProfileResponse.Profile profile)
+	{
+		List<ProfileResponse.Recommendation> recommendations = recommendationDeck(profile);
+		Set<String> passed = passedRecommendationIds.get(accountKey(profile));
+		if (passed == null || passed.isEmpty())
+		{
+			return recommendations.get(0);
+		}
+		return recommendations.stream()
+			.filter(recommendation -> !passed.contains(recommendation.getId()))
+			.findFirst()
+			.orElse(null);
+	}
+
+	private static List<ProfileResponse.Recommendation> recommendationDeck(
+		ProfileResponse.Profile profile)
+	{
+		List<ProfileResponse.Recommendation> recommendations = profile.getRecommendations();
+		if (recommendations == null || recommendations.isEmpty())
+		{
+			return profile.getRecommendation() == null
+				? List.of()
+				: List.of(profile.getRecommendation());
+		}
+		return recommendations;
+	}
+
+	private static String accountKey(ProfileResponse.Profile profile)
+	{
+		return profile.getUsername().trim().toLowerCase(Locale.ROOT);
 	}
 
 	private JPanel retryPanel(String message)

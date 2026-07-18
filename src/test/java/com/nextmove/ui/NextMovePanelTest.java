@@ -111,6 +111,43 @@ public class NextMovePanelTest
 	}
 
 	@Test
+	public void passingShowsTheNextRecommendationOnlyForTheActiveAccount()
+	{
+		Harness harness = panel(true);
+		ProfileResponse jared = fixture("full-profile.json");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"italiaboi69", "lastwilll", true, jared)));
+		harness.click("Coach");
+		assertTrue(harness.text().contains("Start the Inferno cape grind"));
+
+		harness.click("Pass");
+		assertFalse(harness.text().contains("Start the Inferno cape grind"));
+		assertTrue(harness.text().contains("Push Ranged to 100"));
+
+		ProfileResponse other = fixtureForUsername("full-profile.json", "no_noobs10");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"no_noobs10", "lastwilll", true, other)));
+		assertTrue(harness.text().contains("Start the Inferno cape grind"));
+	}
+
+	@Test
+	public void exhaustedDeckCanRestorePassedRecommendations()
+	{
+		Harness harness = panel(true);
+		ProfileResponse response = fixture("full-profile.json");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"italiaboi69", "lastwilll", true, response)));
+		harness.click("Coach");
+
+		harness.click("Pass");
+		harness.click("Pass");
+		assertTrue(harness.text().contains("You passed every suggestion"));
+
+		harness.click("Restore passed ideas");
+		assertTrue(harness.text().contains("Start the Inferno cape grind"));
+	}
+
+	@Test
 	public void settingsIsASeparateScreenInsteadOfStackingOverTheProfile()
 	{
 		Harness harness = panel(true);
@@ -195,6 +232,24 @@ public class NextMovePanelTest
 			return new Gson().fromJson(
 				new InputStreamReader(stream, StandardCharsets.UTF_8),
 				ProfileResponse.class);
+		}
+		catch (IOException exception)
+		{
+			throw new IllegalStateException(exception);
+		}
+	}
+
+	private static ProfileResponse fixtureForUsername(String name, String username)
+	{
+		try (InputStream stream = NextMovePanelTest.class.getResourceAsStream("/fixtures/" + name))
+		{
+			if (stream == null)
+			{
+				throw new IllegalStateException("Missing fixture " + name);
+			}
+			String json = new String(stream.readAllBytes(), StandardCharsets.UTF_8)
+				.replace("\"username\": \"italiaboi69\"", "\"username\": \"" + username + "\"");
+			return new Gson().fromJson(json, ProfileResponse.class);
 		}
 		catch (IOException exception)
 		{
