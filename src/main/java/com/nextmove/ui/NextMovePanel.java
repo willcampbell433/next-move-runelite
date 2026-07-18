@@ -9,6 +9,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -383,6 +384,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		for (View view : View.values())
 		{
 			JButton button = new JButton(view.label);
+			button.setMargin(new Insets(2, 4, 2, 4));
 			button.setEnabled(view != selectedView);
 			button.addActionListener(event -> {
 				selectedView = view;

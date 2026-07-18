@@ -1,11 +1,15 @@
 # Next Move for RuneLite
 
+[![CI](https://github.com/willcampbell433/next-move-runelite/actions/workflows/ci.yml/badge.svg)](https://github.com/willcampbell433/next-move-runelite/actions/workflows/ci.yml)
+
 Next Move is a read-only RuneLite sidebar for answering the most important
 question in Old School RuneScape: **what should I do next?**
 
 It turns public account data into a playful account verdict, one focused
 recommendation, and a boss-progression view without replacing the full Next
 Move website.
+
+Explore the full coach at [osrs-helper-six.vercel.app](https://osrs-helper-six.vercel.app).
 
 ## What v0.1 includes
 
@@ -57,6 +61,8 @@ JAVA_HOME=/path/to/jdk-11 ./gradlew run
 
 The second command launches a developer RuneLite client. In-game verification
 must be completed manually; see [docs/manual-qa.md](docs/manual-qa.md).
+
+Every push and pull request also runs the complete test suite in GitHub Actions.
 
 ## Support and feedback
 
