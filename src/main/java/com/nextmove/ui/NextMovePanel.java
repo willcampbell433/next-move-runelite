@@ -12,12 +12,10 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -86,7 +84,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 	private boolean settingsOpen;
 	private boolean playerLookupOpen;
 	private View selectedView;
-	private final Map<String, Set<String>> passedRecommendationIds = new HashMap<>();
+	private final Map<String, String> selectedRecommendationIds = new HashMap<>();
 
 	public NextMovePanel(ConfigManager configManager, NextMoveConfig config)
 	{
@@ -294,24 +292,20 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 			else if (selectedView == View.COACH)
 			{
 				ProfileResponse.Profile profile = state.getProfile().getProfile();
+				List<ProfileResponse.Recommendation> recommendations = recommendationDeck(profile);
 				ProfileResponse.Recommendation recommendation = nextRecommendation(profile);
-				boolean deckExhausted = recommendation == null
-					&& !recommendationDeck(profile).isEmpty();
 				CoachPanel coach = new CoachPanel();
 				coach.render(
 					profile,
 					recommendation,
-					deckExhausted,
-					recommendation == null ? null : () -> {
-						passedRecommendationIds
-							.computeIfAbsent(accountKey(profile), ignored -> new HashSet<>())
-							.add(recommendation.getId());
-						rebuild();
-					},
-					deckExhausted ? () -> {
-						passedRecommendationIds.remove(accountKey(profile));
-						rebuild();
-					} : null);
+					recommendations,
+					recommendations.size() > 1 ? () -> {
+						int current = recommendations.indexOf(recommendation);
+						ProfileResponse.Recommendation next = recommendations.get(
+							(current + 1) % recommendations.size());
+						selectRecommendation(profile, next);
+					} : null,
+					selected -> selectRecommendation(profile, selected));
 				panel.add(coach);
 			}
 			else
@@ -330,15 +324,23 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 	private ProfileResponse.Recommendation nextRecommendation(ProfileResponse.Profile profile)
 	{
 		List<ProfileResponse.Recommendation> recommendations = recommendationDeck(profile);
-		Set<String> passed = passedRecommendationIds.get(accountKey(profile));
-		if (passed == null || passed.isEmpty())
+		if (recommendations.isEmpty())
 		{
-			return recommendations.get(0);
+			return null;
 		}
+		String selectedId = selectedRecommendationIds.get(accountKey(profile));
 		return recommendations.stream()
-			.filter(recommendation -> !passed.contains(recommendation.getId()))
+			.filter(recommendation -> recommendation.getId().equals(selectedId))
 			.findFirst()
-			.orElse(null);
+			.orElse(recommendations.get(0));
+	}
+
+	private void selectRecommendation(
+		ProfileResponse.Profile profile,
+		ProfileResponse.Recommendation recommendation)
+	{
+		selectedRecommendationIds.put(accountKey(profile), recommendation.getId());
+		rebuild();
 	}
 
 	private static List<ProfileResponse.Recommendation> recommendationDeck(

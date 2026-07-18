@@ -111,7 +111,7 @@ public class NextMovePanelTest
 	}
 
 	@Test
-	public void passingShowsTheNextRecommendationOnlyForTheActiveAccount()
+	public void nextIdeaCyclesAndWrapsOnlyForTheActiveAccount()
 	{
 		Harness harness = panel(true);
 		ProfileResponse jared = fixture("full-profile.json");
@@ -120,9 +120,13 @@ public class NextMovePanelTest
 		harness.click("Coach");
 		assertTrue(harness.text().contains("Start the Inferno cape grind"));
 
-		harness.click("Pass");
-		assertFalse(harness.text().contains("Start the Inferno cape grind"));
-		assertTrue(harness.text().contains("Push Ranged to 100"));
+		harness.click("Next idea");
+		String second = harness.text();
+		assertTrue(second.indexOf("Push Ranged to 100") < second.indexOf("OTHER IDEAS"));
+
+		harness.click("Next idea");
+		String wrapped = harness.text();
+		assertTrue(wrapped.indexOf("Start the Inferno cape grind") < wrapped.indexOf("OTHER IDEAS"));
 
 		ProfileResponse other = fixtureForUsername("full-profile.json", "no_noobs10");
 		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
@@ -131,7 +135,7 @@ public class NextMovePanelTest
 	}
 
 	@Test
-	public void exhaustedDeckCanRestorePassedRecommendations()
+	public void otherIdeasAreVisibleAndSelectable()
 	{
 		Harness harness = panel(true);
 		ProfileResponse response = fixture("full-profile.json");
@@ -139,12 +143,14 @@ public class NextMovePanelTest
 			"italiaboi69", "lastwilll", true, response)));
 		harness.click("Coach");
 
-		harness.click("Pass");
-		harness.click("Pass");
-		assertTrue(harness.text().contains("You passed every suggestion"));
+		String initial = harness.text();
+		assertTrue(initial.contains("OTHER IDEAS"));
+		assertTrue(initial.contains("Push Ranged to 100"));
 
-		harness.click("Restore passed ideas");
-		assertTrue(harness.text().contains("Start the Inferno cape grind"));
+		harness.click("Push Ranged to 100");
+		String selected = harness.text();
+		assertTrue(selected.indexOf("Push Ranged to 100") < selected.indexOf("OTHER IDEAS"));
+		assertTrue(selected.contains("Start the Inferno cape grind"));
 	}
 
 	@Test

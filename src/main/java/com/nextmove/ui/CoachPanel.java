@@ -4,6 +4,8 @@ import com.nextmove.api.ProfileResponse;
 import com.nextmove.links.LinkFactory;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.List;
+import java.util.function.Consumer;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -22,23 +24,21 @@ public class CoachPanel extends JPanel
 
 	public void render(ProfileResponse.Profile profile)
 	{
-		render(profile, profile.getRecommendation(), false, null, null);
+		render(profile, profile.getRecommendation(), List.of(), null, ignored -> { });
 	}
 
 	void render(
 		ProfileResponse.Profile profile,
 		ProfileResponse.Recommendation recommendation,
-		boolean deckExhausted,
-		Runnable onPass,
-		Runnable onRestore)
+		List<ProfileResponse.Recommendation> recommendations,
+		Runnable onNext,
+		Consumer<ProfileResponse.Recommendation> onSelect)
 	{
 		removeAll();
 		add(section("YOUR NEXT MOVE"));
 		if (recommendation == null)
 		{
-			add(wrapped(deckExhausted
-				? "You passed every suggestion for this account."
-				: "No public recommendation is ready"));
+			add(wrapped("No public recommendation is ready"));
 		}
 		else
 		{
@@ -75,35 +75,43 @@ public class CoachPanel extends JPanel
 			JButton wiki = new JButton("Open Wiki guide");
 			wiki.addActionListener(event -> LinkBrowser.browse(
 				LinkFactory.wiki(recommendation.getWikiTitle())));
-			if (onPass == null)
+			if (onNext == null)
 			{
 				add(SidebarUi.buttonStack(wiki, website));
 			}
 			else
 			{
-				JButton pass = new JButton("Pass");
-				pass.addActionListener(event -> onPass.run());
-				add(SidebarUi.buttonStack(wiki, pass, website));
+				JButton next = new JButton("Next idea");
+				next.addActionListener(event -> onNext.run());
+				add(SidebarUi.buttonStack(wiki, next, website));
 			}
 		}
 		else
 		{
-			if (deckExhausted && onRestore != null)
+			add(SidebarUi.buttonStack(website));
+		}
+
+		if (recommendation != null && recommendations.size() > 1)
+		{
+			add(gap(14));
+			add(section("OTHER IDEAS"));
+			for (ProfileResponse.Recommendation alternative : recommendations)
 			{
-				JButton restore = new JButton("Restore passed ideas");
-				restore.addActionListener(event -> onRestore.run());
-				add(SidebarUi.buttonStack(restore, website));
-			}
-			else
-			{
-				add(SidebarUi.buttonStack(website));
+				if (alternative.getId().equals(recommendation.getId()))
+				{
+					continue;
+				}
+				JButton select = new JButton(alternative.getTitle());
+				select.addActionListener(event -> onSelect.accept(alternative));
+				add(gap(4));
+				add(SidebarUi.buttonStack(select));
 			}
 		}
 
 		add(gap(12));
-		add(wrapped(onPass == null && onRestore == null
-			? "Tracking and completing recommendations stay on the Next Move website."
-			: "Pass only affects this account in this RuneLite session. Done and goal tracking stay on the website."));
+		add(wrapped(recommendations.size() > 1
+			? "Browse ideas here. Done, goal tracking, and full history stay on the Next Move website."
+			: "Tracking and completing recommendations stay on the Next Move website."));
 
 		revalidate();
 		repaint();

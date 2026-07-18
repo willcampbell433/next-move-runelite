@@ -24,8 +24,9 @@ Explore the full coach at [osrs-helper-six.vercel.app](https://osrs-helper-six.v
 - **Safe links** — open the relevant full OSRS Wiki guide or the matching Next
   Move website page in the system browser.
 
-The Coach can **Pass** through a bounded public recommendation deck. Passed
-ideas stay isolated per username for the current RuneLite session. Durable
+The Coach can cycle through a bounded public recommendation deck with **Next
+idea** or choose directly from the visible **Other ideas** list. The selected
+idea stays isolated per username for the current RuneLite session. Durable
 **Done**, goal tracking, and recommendation history remain on the website.
 
 ## Setup
