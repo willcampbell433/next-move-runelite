@@ -31,6 +31,8 @@ idea stays isolated per username for the current RuneLite session. Durable
 
 ## Setup
 
+Next Move is currently awaiting RuneLite Plugin Hub review. After approval:
+
 1. Install **Next Move** from the RuneLite Plugin Hub.
 2. Open its sidebar panel.
 3. Choose **Load profile** and accept RuneLite's third-party connection warning.
@@ -69,7 +71,9 @@ Every push and pull request also runs the complete test suite in GitHub Actions.
 ## Support and feedback
 
 This is an early, free, open-source beta. Bug reports and focused feedback are
-welcome in this repository's GitHub issues.
+welcome in this repository's GitHub issues. See [CONTRIBUTING.md](CONTRIBUTING.md)
+before opening a pull request. Please report security concerns privately as
+described in [SECURITY.md](SECURITY.md).
 
 ## License
 

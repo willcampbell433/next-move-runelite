@@ -1,0 +1,55 @@
+name: Bug report
+description: Report incorrect behavior in the RuneLite sidebar.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve Next Move. Never include account credentials or private game data.
+  - type: input
+    id: runelite-version
+    attributes:
+      label: RuneLite version
+      placeholder: e.g. 1.10.x
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Next Move version
+      placeholder: e.g. 0.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: panel
+    attributes:
+      label: Affected view
+      options:
+        - Power
+        - Coach
+        - Bosses
+        - Settings or profile loading
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Include concise reproduction steps, expected behavior, and actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Remove usernames, tokens, or other private information before pasting logs.
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed credentials and private account data from this report.
+          required: true
