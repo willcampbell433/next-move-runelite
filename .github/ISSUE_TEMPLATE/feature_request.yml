@@ -1,0 +1,29 @@
+name: Feature request
+description: Suggest a focused improvement to the read-only companion.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the player need rather than only the proposed interface.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Explain the smallest useful version of the idea.
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Plugin boundaries
+      options:
+        - label: This can remain read-only and does not automate gameplay.
+          required: true
+        - label: This does not require credentials, private game data, or a custom server.
+          required: true

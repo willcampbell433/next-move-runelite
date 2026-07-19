@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Next Move website
+    url: https://osrsnextmove.com
+    about: Use the full coach, goal tracking, and account tools on the website.
+  - name: Security report
+    url: https://github.com/willcampbell433/next-move-runelite/security/advisories/new
+    about: Report suspected vulnerabilities privately.
