@@ -1,12 +1,12 @@
 # Privacy
 
-Next Move is a read-only visual companion. Public profile lookup is disabled by
-default and displays RuneLite's required third-party connection warning before
-it can be enabled.
+Next Move is a read-only visual companion. It requires its fixed third-party
+service to turn a public OSRS username into the profile shown in its sidebar.
+RuneLite displays the Plugin Hub third-party connection warning before use.
 
 ## What is sent
 
-When public lookup is enabled, the plugin sends:
+When the logged-in character or a friend is selected, the plugin sends:
 
 - the selected OSRS username as a query parameter; and
 - ordinary HTTPS request metadata, including the connecting IP address.
@@ -25,8 +25,8 @@ The response can contain:
   and
 - freshness and source labels used to explain the analysis.
 
-The service builds this analysis from public OSRS Hiscores and, when available,
-WikiSync quest state.
+The service builds this analysis only from official public OSRS Hiscores. Quest
+completion is unavailable in this version and is never guessed.
 
 ## What the plugin does not read or send
 
@@ -36,14 +36,11 @@ or arbitrary local files. It does not automate gameplay or write to the game.
 
 ## Local behavior
 
-Only two preferences are stored through RuneLite configuration:
-
-- whether public lookup is enabled; and
-- the selected panel view.
+Only the selected panel view is stored through RuneLite configuration.
 
 Loaded profiles, friend lookups, and the selected recommendation for each
-username remain in memory only. Disabling public lookup cancels active requests
-and clears the loaded profile. Closing the plugin does the same.
+username remain in memory only. Closing the plugin cancels active requests and
+clears that in-memory state.
 
 ## Server behavior
 

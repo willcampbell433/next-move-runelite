@@ -27,7 +27,7 @@ public class LinkFactoryTest
 	{
 		assertEquals(
 			"https://osrsnextmove.com/runelite",
-			LinkFactory.wikiSyncSetup());
+			LinkFactory.runeliteGuide());
 	}
 
 	@Test

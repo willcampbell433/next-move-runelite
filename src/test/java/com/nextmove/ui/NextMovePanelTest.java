@@ -1,7 +1,6 @@
 package com.nextmove.ui;
 
 import com.google.gson.Gson;
-import com.nextmove.NextMoveConfig;
 import com.nextmove.api.ProfileResponse;
 import com.nextmove.profile.ProfileState;
 import java.awt.Component;
@@ -21,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
-import net.runelite.client.config.ConfigItem;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -32,46 +30,23 @@ import static org.junit.Assert.assertEquals;
 public class NextMovePanelTest
 {
 	@Test
-	public void configRequiresTheExactThirdPartyWarning() throws Exception
+	public void startsWithTheMeaningfulProfileInterface()
 	{
-		ConfigItem item = NextMoveConfig.class
-			.getMethod("publicLookupEnabled")
-			.getAnnotation(ConfigItem.class);
-		assertNotNull(item);
-		assertEquals(
-			"This feature submits your IP address to a 3rd-party server not controlled or verified by RuneLite developers",
-			item.warning());
-	}
-
-	@Test
-	public void startsWithConsentAndNamesTheFixedHost()
-	{
-		Harness harness = panel(false);
+		Harness harness = panel();
 		harness.onEdt(() -> harness.panel.setCurrentCharacterName("lastwilll"));
 
 		String text = harness.text();
-		assertTrue(text.contains("Load public profile"));
-		assertTrue(text.contains("osrsnextmove.com"));
-		assertFalse(text.contains("Look up friend"));
-		assertEquals(0, harness.actions.loadCount);
-	}
-
-	@Test
-	public void consentPersistsTheOptInAndLoadsTheCurrentCharacter()
-	{
-		Harness harness = panel(false);
-		harness.onEdt(() -> harness.panel.setCurrentCharacterName("lastwilll"));
-		harness.click("Load profile");
-
-		assertTrue(harness.settings.enabled);
-		assertEquals(1, harness.actions.currentCharacterCount);
-		assertEquals("lastwilll", harness.actions.lastUsername);
+		assertTrue(text.contains("Power"));
+		assertTrue(text.contains("Coach"));
+		assertTrue(text.contains("Bosses"));
+		assertTrue(text.contains("Look up friend"));
+		assertFalse(text.contains("Load public profile"));
 	}
 
 	@Test
 	public void friendStateOffersReturnToMyCharacter()
 	{
-		Harness harness = panel(true);
+		Harness harness = panel();
 		ProfileResponse response = fixture("full-profile.json");
 		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
 			"italiaboi69", "lastwilll", true, response)));
@@ -82,7 +57,7 @@ public class NextMovePanelTest
 	@Test
 	public void navigationStoresOnlyTheSelectedViewEnum()
 	{
-		Harness harness = panel(true);
+		Harness harness = panel();
 		harness.click("Coach");
 		assertEquals("COACH", harness.settings.selectedView);
 		assertTrue(harness.text().contains("Coach"));
@@ -91,7 +66,7 @@ public class NextMovePanelTest
 	@Test
 	public void loadedProfileKeepsAllNavigationAboveTheContent()
 	{
-		Harness harness = panel(true);
+		Harness harness = panel();
 		ProfileResponse response = fixture("full-profile.json");
 		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
 			"lastwilll", "lastwilll", false, response)));
@@ -113,7 +88,7 @@ public class NextMovePanelTest
 	@Test
 	public void nextIdeaCyclesAndWrapsOnlyForTheActiveAccount()
 	{
-		Harness harness = panel(true);
+		Harness harness = panel();
 		ProfileResponse jared = fixture("full-profile.json");
 		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
 			"italiaboi69", "lastwilll", true, jared)));
@@ -137,7 +112,7 @@ public class NextMovePanelTest
 	@Test
 	public void otherIdeasAreVisibleAndSelectable()
 	{
-		Harness harness = panel(true);
+		Harness harness = panel();
 		ProfileResponse response = fixture("full-profile.json");
 		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
 			"italiaboi69", "lastwilll", true, response)));
@@ -156,7 +131,7 @@ public class NextMovePanelTest
 	@Test
 	public void settingsIsASeparateScreenInsteadOfStackingOverTheProfile()
 	{
-		Harness harness = panel(true);
+		Harness harness = panel();
 		ProfileResponse response = fixture("full-profile.json");
 		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
 			"lastwilll", "lastwilll", false, response)));
@@ -170,7 +145,7 @@ public class NextMovePanelTest
 	@Test
 	public void loadedProfileCollapsesPlayerLookupUntilRequested()
 	{
-		Harness harness = panel(true);
+		Harness harness = panel();
 		ProfileResponse response = fixture("full-profile.json");
 		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
 			"lastwilll", "lastwilll", false, response)));
@@ -186,7 +161,7 @@ public class NextMovePanelTest
 	@Test
 	public void playerLookupUsesASpacedFullWidthActionRow()
 	{
-		Harness harness = panel(true);
+		Harness harness = panel();
 		ProfileResponse response = fixture("full-profile.json");
 		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
 			"lastwilll", "lastwilll", false, response)));
@@ -207,20 +182,21 @@ public class NextMovePanelTest
 	}
 
 	@Test
-	public void disablingLookupClearsMemoryAndReturnsToConsent()
+	public void settingsExplainsTheFixedServiceWithoutADisableToggle()
 	{
-		Harness harness = panel(true);
+		Harness harness = panel();
 		harness.click("Settings");
-		harness.click("Disable public lookup");
 
-		assertFalse(harness.settings.enabled);
-		assertEquals(1, harness.actions.clearCount);
-		assertTrue(harness.text().contains("Load public profile"));
+		String text = harness.text();
+		assertTrue(text.contains("osrsnextmove.com"));
+		assertTrue(text.contains("official public Hiscores"));
+		assertTrue(text.contains("Quest completion is unavailable"));
+		assertFalse(text.contains("Disable public lookup"));
 	}
 
-	private static Harness panel(boolean enabled)
+	private static Harness panel()
 	{
-		FakeSettings settings = new FakeSettings(enabled);
+		FakeSettings settings = new FakeSettings();
 		FakeActions actions = new FakeActions();
 		AtomicReference<NextMovePanel> panel = new AtomicReference<>();
 		onEdt(() -> panel.set(new NextMovePanel(settings, actions)));
@@ -482,25 +458,7 @@ public class NextMovePanelTest
 
 	private static class FakeSettings implements NextMovePanel.Settings
 	{
-		private boolean enabled;
 		private String selectedView = "ACCOUNT";
-
-		private FakeSettings(boolean enabled)
-		{
-			this.enabled = enabled;
-		}
-
-		@Override
-		public boolean lookupEnabled()
-		{
-			return enabled;
-		}
-
-		@Override
-		public void setLookupEnabled(boolean enabled)
-		{
-			this.enabled = enabled;
-		}
 
 		@Override
 		public String selectedView()
@@ -530,13 +488,6 @@ public class NextMovePanelTest
 		}
 
 		@Override
-		public void setCurrentCharacter(String username)
-		{
-			currentCharacterCount += 1;
-			lastUsername = username;
-		}
-
-		@Override
 		public void refresh()
 		{
 		}
@@ -546,10 +497,5 @@ public class NextMovePanelTest
 		{
 		}
 
-		@Override
-		public void clearProfile()
-		{
-			clearCount += 1;
-		}
 	}
 }

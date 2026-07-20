@@ -1,7 +1,6 @@
 package com.nextmove;
 
 import java.util.Objects;
-import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
 
 final class NextMoveSession
@@ -23,26 +22,21 @@ final class NextMoveSession
 
 		void clearCurrentCharacter();
 
-		void clearProfile();
-
 		void close();
 	}
 
 	private final ToolbarPort toolbar;
 	private final ProfilePort profile;
-	private final BooleanSupplier lookupEnabled;
 	private boolean started;
 	private String currentUsername;
 	private String lastLoadedUsername;
 
 	NextMoveSession(
 		ToolbarPort toolbar,
-		ProfilePort profile,
-		BooleanSupplier lookupEnabled)
+		ProfilePort profile)
 	{
 		this.toolbar = Objects.requireNonNull(toolbar);
 		this.profile = Objects.requireNonNull(profile);
-		this.lookupEnabled = Objects.requireNonNull(lookupEnabled);
 	}
 
 	void start()
@@ -73,7 +67,7 @@ final class NextMoveSession
 			profile.showCurrentCharacter(selected);
 			lastLoadedUsername = null;
 		}
-		if (lookupEnabled.getAsBoolean() && !selected.equals(lastLoadedUsername))
+		if (!selected.equals(lastLoadedUsername))
 		{
 			profile.loadCurrentCharacter(selected);
 			lastLoadedUsername = selected;
@@ -89,25 +83,6 @@ final class NextMoveSession
 		currentUsername = null;
 		lastLoadedUsername = null;
 		profile.clearCurrentCharacter();
-	}
-
-	void consentChanged(boolean enabled)
-	{
-		if (!started)
-		{
-			return;
-		}
-		if (!enabled)
-		{
-			lastLoadedUsername = null;
-			profile.clearProfile();
-			return;
-		}
-		if (currentUsername != null && !currentUsername.equals(lastLoadedUsername))
-		{
-			profile.loadCurrentCharacter(currentUsername);
-			lastLoadedUsername = currentUsername;
-		}
 	}
 
 	void stop()

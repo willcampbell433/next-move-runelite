@@ -1,6 +1,5 @@
 package com.nextmove;
 
-import com.google.inject.Provides;
 import com.nextmove.api.NextMoveClient;
 import com.nextmove.profile.ProfileController;
 import com.nextmove.ui.NextMovePanel;
@@ -11,7 +10,6 @@ import net.runelite.api.GameState;
 import net.runelite.api.Player;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
-import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
@@ -23,7 +21,7 @@ import net.runelite.client.util.ImageUtil;
 @PluginDescriptor(
 	name = "Next Move",
 	description = "Shows public Next Move account scores, recommendations, and boss progression.",
-	tags = {"account", "goals", "bosses", "recommendations", "hiscores", "wikisync"}
+	tags = {"account", "goals", "bosses", "recommendations", "hiscores"}
 )
 public class NextMovePlugin extends Plugin
 {
@@ -37,9 +35,6 @@ public class NextMovePlugin extends Plugin
 	private ConfigManager configManager;
 
 	@Inject
-	private NextMoveConfig config;
-
-	@Inject
 	private NextMoveClient nextMoveClient;
 
 	private NextMovePanel panel;
@@ -51,7 +46,7 @@ public class NextMovePlugin extends Plugin
 	@Override
 	protected void startUp()
 	{
-		panel = new NextMovePanel(configManager, config);
+		panel = new NextMovePanel(configManager);
 		controller = new ProfileController(nextMoveClient, panel);
 		panel.setController(controller);
 
@@ -100,18 +95,11 @@ public class NextMovePlugin extends Plugin
 				}
 
 				@Override
-				public void clearProfile()
-				{
-					controller.clearProfile();
-				}
-
-				@Override
 				public void close()
 				{
 					controller.close();
 				}
-			},
-			config::publicLookupEnabled);
+			});
 		session.start();
 		currentCharacterObserved = false;
 		if (client.getGameState() == GameState.LOGGED_IN)
@@ -165,20 +153,6 @@ public class NextMovePlugin extends Plugin
 		}
 	}
 
-	@Subscribe
-	public void onConfigChanged(ConfigChanged event)
-	{
-		if (session == null
-			|| !"next-move".equals(event.getGroup())
-			|| !"publicLookupEnabled".equals(event.getKey()))
-		{
-			return;
-		}
-		boolean enabled = config.publicLookupEnabled();
-		panel.setLookupEnabledFromConfig(enabled);
-		session.consentChanged(enabled);
-	}
-
 	private boolean loadLocalPlayer()
 	{
 		Player localPlayer = client.getLocalPlayer();
@@ -190,9 +164,4 @@ public class NextMovePlugin extends Plugin
 		return false;
 	}
 
-	@Provides
-	NextMoveConfig provideConfig(ConfigManager configManager)
-	{
-		return configManager.getConfig(NextMoveConfig.class);
-	}
 }

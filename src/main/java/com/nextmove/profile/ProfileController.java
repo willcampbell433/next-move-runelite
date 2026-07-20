@@ -125,11 +125,6 @@ public class ProfileController
 		load(currentCharacter, false);
 	}
 
-	public synchronized void clearProfile()
-	{
-		resetInMemory();
-	}
-
 	public synchronized void close()
 	{
 		closed = true;

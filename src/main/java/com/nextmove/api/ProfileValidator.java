@@ -18,8 +18,8 @@ import java.util.regex.Pattern;
 public final class ProfileValidator
 {
 	private static final Pattern USERNAME = Pattern.compile("[A-Za-z0-9 _-]{1,12}");
-	private static final Set<String> DATA_SOURCES = Set.of("WIKISYNC", "HISCORES");
-	private static final Set<String> QUEST_DATA = Set.of("AVAILABLE", "MISSING");
+	private static final Set<String> DATA_SOURCES = Set.of("HISCORES");
+	private static final Set<String> QUEST_DATA = Set.of("MISSING");
 	private static final Set<String> ACCOUNT_TIERS = Set.of(
 		"INCOMPLETE", "EARLY", "MID", "LATE", "ENDGAME");
 	private static final Set<String> BOSS_TIERS = Set.of(
