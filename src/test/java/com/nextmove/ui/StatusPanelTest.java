@@ -11,7 +11,7 @@ public class StatusPanelTest
 	@Test
 	public void participatesInTheSameLeftAxisAsSidebarContent()
 	{
-		StatusPanel panel = new StatusPanel("WikiSync ready");
+		StatusPanel panel = new StatusPanel("Hiscores only · Quests unavailable");
 
 		assertEquals(Component.LEFT_ALIGNMENT, panel.getAlignmentX(), 0.0f);
 	}

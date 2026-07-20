@@ -1,6 +1,5 @@
 package com.nextmove.ui;
 
-import com.nextmove.NextMoveConfig;
 import com.nextmove.api.ProfileResponse;
 import com.nextmove.links.LinkFactory;
 import com.nextmove.profile.ProfileController;
@@ -33,17 +32,12 @@ import net.runelite.client.util.LinkBrowser;
 public class NextMovePanel extends PluginPanel implements ProfileView
 {
 	private static final String CONFIG_GROUP = "next-move";
-	private static final String LOOKUP_KEY = "publicLookupEnabled";
 	private static final String VIEW_KEY = "selectedView";
 	private static final String HOST = "osrsnextmove.com";
 	private static final Pattern USERNAME = Pattern.compile("[A-Za-z0-9 _-]{1,12}");
 
 	interface Settings
 	{
-		boolean lookupEnabled();
-
-		void setLookupEnabled(boolean enabled);
-
 		String selectedView();
 
 		void setSelectedView(String selectedView);
@@ -53,13 +47,10 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 	{
 		void load(String username, boolean friend);
 
-		void setCurrentCharacter(String username);
-
 		void refresh();
 
 		void returnToCurrentCharacter();
 
-		void clearProfile();
 	}
 
 	private enum View
@@ -80,22 +71,20 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 	private Actions actions;
 	private ProfileState state = ProfileState.notLoaded(null);
 	private String currentCharacterName;
-	private boolean lookupEnabled;
 	private boolean settingsOpen;
 	private boolean playerLookupOpen;
 	private View selectedView;
 	private final Map<String, String> selectedRecommendationIds = new HashMap<>();
 
-	public NextMovePanel(ConfigManager configManager, NextMoveConfig config)
+	public NextMovePanel(ConfigManager configManager)
 	{
-		this(new RuneLiteSettings(configManager, config), new NoOpActions());
+		this(new RuneLiteSettings(configManager), new NoOpActions());
 	}
 
 	NextMovePanel(Settings settings, Actions actions)
 	{
 		this.settings = Objects.requireNonNull(settings);
 		this.actions = Objects.requireNonNull(actions);
-		lookupEnabled = settings.lookupEnabled();
 		selectedView = parseView(settings.selectedView());
 		setLayout(new BorderLayout());
 		setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -114,12 +103,6 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 			}
 
 			@Override
-			public void setCurrentCharacter(String username)
-			{
-				controller.setCurrentCharacter(username);
-			}
-
-			@Override
 			public void refresh()
 			{
 				controller.refresh();
@@ -131,11 +114,6 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 				controller.returnToCurrentCharacter();
 			}
 
-			@Override
-			public void clearProfile()
-			{
-				controller.clearProfile();
-			}
 		};
 	}
 
@@ -150,21 +128,6 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 			? null
 			: username.trim();
 		state = state.withCurrentCharacter(currentCharacterName);
-		rebuild();
-	}
-
-	public void setLookupEnabledFromConfig(boolean enabled)
-	{
-		if (!SwingUtilities.isEventDispatchThread())
-		{
-			SwingUtilities.invokeLater(() -> setLookupEnabledFromConfig(enabled));
-			return;
-		}
-		lookupEnabled = enabled;
-		if (!enabled)
-		{
-			state = ProfileState.notLoaded(currentCharacterName);
-		}
 		rebuild();
 	}
 
@@ -204,10 +167,6 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		{
 			body.add(settingsPanel());
 		}
-		else if (!lookupEnabled)
-		{
-			body.add(consentPanel());
-		}
 		else
 		{
 			body.add(navigationPanel());
@@ -220,33 +179,6 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		add(body, BorderLayout.CENTER);
 		revalidate();
 		repaint();
-	}
-
-	private JPanel consentPanel()
-	{
-		JPanel panel = vertical();
-		String character = currentCharacterName == null ? "a public character" : currentCharacterName;
-		panel.add(new JLabel("Load public profile"));
-		panel.add(Box.createRigidArea(new Dimension(0, 6)));
-		panel.add(wrapped("Load the public Next Move profile for " + character + "?"));
-		panel.add(wrapped(
-			"Sends only this public character name to " + HOST
-				+ " and receives analysis built from Hiscores and WikiSync."));
-		JButton accept = new JButton("Load profile");
-		accept.setAlignmentX(Component.LEFT_ALIGNMENT);
-		accept.addActionListener(event -> {
-			lookupEnabled = true;
-			settings.setLookupEnabled(true);
-			if (currentCharacterName != null)
-			{
-				actions.setCurrentCharacter(currentCharacterName);
-			}
-			settingsOpen = false;
-			rebuild();
-		});
-		panel.add(Box.createRigidArea(new Dimension(0, 8)));
-		panel.add(accept);
-		return panel;
 	}
 
 	private JPanel contentPanel()
@@ -464,23 +396,9 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		title.setAlignmentX(Component.LEFT_ALIGNMENT);
 		panel.add(title);
 		panel.add(Box.createRigidArea(new Dimension(0, 6)));
-		panel.add(wrapped("Public lookup uses Next Move's fixed HTTPS service."));
-		panel.add(wrapped("Skills and bosses come from public Hiscores. Quest-aware advice uses WikiSync when available."));
-		if (lookupEnabled)
-		{
-			JButton disable = new JButton("Disable public lookup");
-			disable.setAlignmentX(Component.LEFT_ALIGNMENT);
-			disable.addActionListener(event -> {
-				lookupEnabled = false;
-				settings.setLookupEnabled(false);
-				actions.clearProfile();
-				state = ProfileState.notLoaded(currentCharacterName);
-				settingsOpen = false;
-				rebuild();
-			});
-			panel.add(Box.createRigidArea(new Dimension(0, 8)));
-			panel.add(SidebarUi.buttonStack(disable));
-		}
+		panel.add(wrapped("Next Move sends the selected public username to " + HOST + " over HTTPS."));
+		panel.add(wrapped("Account skills, activities, and bosses come from official public Hiscores."));
+		panel.add(wrapped("Quest completion is unavailable and is never guessed."));
 		JButton close = new JButton("Back to profile");
 		close.addActionListener(event -> {
 			settingsOpen = false;
@@ -513,19 +431,13 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 
 	private String statusText()
 	{
-		if (!lookupEnabled)
-		{
-			return "Public lookup off";
-		}
 		if (state.getStatus() == ProfileState.Status.LOADED_STALE)
 		{
 			return "Stale · refresh failed";
 		}
 		if (state.getProfile() != null && state.getProfile().getProfile() != null)
 		{
-			return "WIKISYNC".equals(state.getProfile().getProfile().getDataSource())
-				? "WikiSync ready"
-				: "Hiscores only · Quests unavailable";
+			return "Hiscores only · Quests unavailable";
 		}
 		return state.getMessage();
 	}
@@ -537,7 +449,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 			: currentCharacterName;
 		if (username == null)
 		{
-			return LinkFactory.wikiSyncSetup();
+			return LinkFactory.runeliteGuide();
 		}
 		return LinkFactory.account(username, LinkFactory.View.COACH);
 	}
@@ -583,24 +495,10 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 	private static class RuneLiteSettings implements Settings
 	{
 		private final ConfigManager configManager;
-		private final NextMoveConfig config;
 
-		private RuneLiteSettings(ConfigManager configManager, NextMoveConfig config)
+		private RuneLiteSettings(ConfigManager configManager)
 		{
 			this.configManager = Objects.requireNonNull(configManager);
-			this.config = Objects.requireNonNull(config);
-		}
-
-		@Override
-		public boolean lookupEnabled()
-		{
-			return config.publicLookupEnabled();
-		}
-
-		@Override
-		public void setLookupEnabled(boolean enabled)
-		{
-			configManager.setConfiguration(CONFIG_GROUP, LOOKUP_KEY, enabled);
 		}
 
 		@Override
@@ -624,11 +522,6 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		}
 
 		@Override
-		public void setCurrentCharacter(String username)
-		{
-		}
-
-		@Override
 		public void refresh()
 		{
 		}
@@ -638,9 +531,5 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		{
 		}
 
-		@Override
-		public void clearProfile()
-		{
-		}
 	}
 }

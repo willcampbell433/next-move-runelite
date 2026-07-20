@@ -1,6 +1,5 @@
 package com.nextmove;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -10,7 +9,7 @@ public class NextMoveSessionTest
 	@Test
 	public void registersAndRemovesTheNavigationButton()
 	{
-		Fixture fixture = new Fixture(false);
+		Fixture fixture = new Fixture();
 		fixture.session.start();
 		fixture.session.start();
 		assertEquals(1, fixture.toolbar.addCount);
@@ -21,45 +20,32 @@ public class NextMoveSessionTest
 	}
 
 	@Test
-	public void showsButDoesNotLoadACharacterBeforeOptIn()
+	public void showsAndLoadsTheLoggedInCharacterOnce()
 	{
-		Fixture fixture = new Fixture(false);
+		Fixture fixture = new Fixture();
 		fixture.session.start();
+		fixture.session.loggedIn("lastwilll");
 		fixture.session.loggedIn("lastwilll");
 
 		assertEquals("lastwilll", fixture.profile.shownUsername);
+		assertEquals(1, fixture.profile.loadCount);
+		assertEquals("lastwilll", fixture.profile.loadedUsername);
+	}
+
+	@Test
+	public void ignoresInvalidCharacterNames()
+	{
+		Fixture fixture = new Fixture();
+		fixture.session.start();
+		fixture.session.loggedIn("name-that-is-too-long");
+
 		assertEquals(0, fixture.profile.loadCount);
-	}
-
-	@Test
-	public void loadsOnceAfterOptInAndLogin()
-	{
-		Fixture fixture = new Fixture(true);
-		fixture.session.start();
-		fixture.session.loggedIn("lastwilll");
-		fixture.session.loggedIn("lastwilll");
-
-		assertEquals(1, fixture.profile.loadCount);
-		assertEquals("lastwilll", fixture.profile.loadedUsername);
-	}
-
-	@Test
-	public void consentAfterLoginLoadsTheVisibleCharacter()
-	{
-		Fixture fixture = new Fixture(false);
-		fixture.session.start();
-		fixture.session.loggedIn("lastwilll");
-		fixture.enabled.set(true);
-		fixture.session.consentChanged(true);
-
-		assertEquals(1, fixture.profile.loadCount);
-		assertEquals("lastwilll", fixture.profile.loadedUsername);
 	}
 
 	@Test
 	public void characterSwitchLoadsTheNewNameAndLogoutClearsIt()
 	{
-		Fixture fixture = new Fixture(true);
+		Fixture fixture = new Fixture();
 		fixture.session.start();
 		fixture.session.loggedIn("first");
 		fixture.session.loggedIn("second");
@@ -70,30 +56,15 @@ public class NextMoveSessionTest
 		assertEquals(1, fixture.profile.clearCharacterCount);
 	}
 
-	@Test
-	public void disablingConsentClearsOnlyTheInMemoryProfile()
-	{
-		Fixture fixture = new Fixture(true);
-		fixture.session.start();
-		fixture.session.loggedIn("lastwilll");
-		fixture.enabled.set(false);
-		fixture.session.consentChanged(false);
-
-		assertEquals(1, fixture.profile.clearProfileCount);
-		assertEquals("lastwilll", fixture.profile.shownUsername);
-	}
-
 	private static class Fixture
 	{
-		private final AtomicBoolean enabled;
 		private final FakeToolbar toolbar = new FakeToolbar();
 		private final FakeProfile profile = new FakeProfile();
 		private final NextMoveSession session;
 
-		private Fixture(boolean enabled)
+		private Fixture()
 		{
-			this.enabled = new AtomicBoolean(enabled);
-			session = new NextMoveSession(toolbar, profile, this.enabled::get);
+			session = new NextMoveSession(toolbar, profile);
 		}
 	}
 
@@ -121,7 +92,6 @@ public class NextMoveSessionTest
 		private String loadedUsername;
 		private int loadCount;
 		private int clearCharacterCount;
-		private int clearProfileCount;
 		private int closeCount;
 
 		@Override
@@ -142,12 +112,6 @@ public class NextMoveSessionTest
 		{
 			shownUsername = null;
 			clearCharacterCount += 1;
-		}
-
-		@Override
-		public void clearProfile()
-		{
-			clearProfileCount += 1;
 		}
 
 		@Override

@@ -9,10 +9,10 @@ Plugin Hub review. Do not automate any interaction with the game.
    panel opens.
    The title should occupy its own row, with Refresh and Settings directly
    underneath it.
-3. With public lookup disabled, confirm the panel shows the current character
-   name but makes no request and displays **Load public profile**.
-4. Choose **Load profile**, accept the warning, and confirm Account loads for
-   the logged-in character.
+3. Log in and confirm Account loads automatically for the current character
+   after RuneLite's third-party connection warning has been accepted.
+4. Open Settings and confirm it identifies the fixed `osrsnextmove.com` HTTPS
+   service, official public Hiscores, and unavailable quest completion data.
 5. Confirm Power displays the overall score out of 100, tier, five category
    scores, and titles without clipping at the normal RuneLite sidebar width.
    Power, Coach, and Bosses must remain visible above the content.
@@ -38,7 +38,5 @@ Plugin Hub review. Do not automate any interaction with the game.
     player-independent Account Scoring page opens.
 13. Refresh a loaded profile, hop worlds, and log out/in; confirm there are no
     duplicate sidebar buttons and the current account reloads only when needed.
-14. Disable public lookup in Settings and confirm active work is cancelled, the
-    profile clears, and the consent screen returns.
-15. Stop or disable the plugin and confirm its sidebar button is removed with no
+14. Stop or disable the plugin and confirm its sidebar button is removed with no
     errors in the developer console.

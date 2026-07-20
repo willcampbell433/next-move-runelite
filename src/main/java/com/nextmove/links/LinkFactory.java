@@ -58,7 +58,7 @@ public final class LinkFactory
 			.toString();
 	}
 
-	public static String wikiSyncSetup()
+	public static String runeliteGuide()
 	{
 		return NEXT_MOVE.newBuilder()
 			.addPathSegment("runelite")

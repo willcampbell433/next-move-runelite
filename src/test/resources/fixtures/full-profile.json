@@ -3,15 +3,15 @@
   "generatedAt": "2026-07-17T14:00:00.000Z",
   "profile": {
     "username": "italiaboi69",
-    "dataSource": "WIKISYNC",
-    "questData": "AVAILABLE",
+    "dataSource": "HISCORES",
+    "questData": "MISSING",
     "account": {
       "score": 9260,
       "maximumScore": 10000,
       "scoreCoverage": {
-        "availableWeightedSignals": 3,
+        "availableWeightedSignals": 2,
         "totalWeightedSignals": 3,
-        "availableDisplaySignals": 5,
+        "availableDisplaySignals": 4,
         "totalDisplaySignals": 5
       },
       "tierId": "ENDGAME",
@@ -24,7 +24,7 @@
         { "id": "COMBAT", "label": "Combat", "status": "AVAILABLE", "score": 96, "maximumScore": 100 },
         { "id": "BOSSES", "label": "Bosses", "status": "AVAILABLE", "score": 70, "maximumScore": 100 },
         { "id": "RAIDS", "label": "Raids", "status": "AVAILABLE", "score": 36, "maximumScore": 100 },
-        { "id": "QUESTS", "label": "Quests", "status": "AVAILABLE", "score": 99, "maximumScore": 100 }
+        { "id": "QUESTS", "label": "Quests", "status": "UNAVAILABLE", "score": null, "maximumScore": 100 }
       ]
     },
     "recommendation": {

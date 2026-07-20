@@ -35,22 +35,20 @@ Next Move is currently awaiting RuneLite Plugin Hub review. After approval:
 
 1. Install **Next Move** from the RuneLite Plugin Hub.
 2. Open its sidebar panel.
-3. Choose **Load profile** and accept RuneLite's third-party connection warning.
+3. Accept RuneLite's third-party connection warning when prompted.
 
-Skills and bosses work from public Hiscores. Enable **WikiSync** in RuneLite
-for quest-aware recommendations. Next Move does not require an account or a
-custom sync code for this visual companion.
-
-The plugin starts with public lookup disabled. Turning it on sends the selected
-OSRS username to `https://osrsnextmove.com` over HTTPS. Disabling it
-cancels active requests and clears the loaded profile from the panel.
+The logged-in character loads automatically. You can also look up a friend's
+public profile by username. Skills, activities, and boss kill counts come only
+from official public OSRS Hiscores. Quest completion is unavailable in this
+version and is never guessed. Next Move does not require an account or a custom
+sync code for this visual companion.
 
 ## Privacy and data sources
 
 Next Move reads analysis from a fixed, public, read-only endpoint. The analysis
-is built from public OSRS Hiscores and, when available, WikiSync quest state.
-The plugin does not automate gameplay, write to the game, or read credentials.
-Friend lookups are temporary and are not saved by the plugin.
+is built only from official public OSRS Hiscores. Quest completion is not read
+or inferred. The plugin does not automate gameplay, write to the game, or read
+credentials. Friend lookups are temporary and are not saved by the plugin.
 
 See [docs/privacy.md](docs/privacy.md) for the complete boundary.
 
