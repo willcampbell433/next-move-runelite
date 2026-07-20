@@ -5,9 +5,10 @@
 Next Move is a read-only RuneLite sidebar for answering the most important
 question in Old School RuneScape: **what should I do next?**
 
-It turns public account data into a playful account verdict, a focused deck of
-short-term recommendations, and a boss-progression view without replacing the
-full Next Move website.
+It combines official public Hiscores with the logged-in character's RuneLite
+quest states to produce a playful account verdict, a focused deck of short-term
+recommendations, and a boss-progression view without replacing the full Next
+Move website.
 
 Explore the full coach at [osrsnextmove.com](https://osrsnextmove.com).
 
@@ -37,18 +38,20 @@ Next Move is currently awaiting RuneLite Plugin Hub review. After approval:
 2. Open its sidebar panel.
 3. Accept RuneLite's third-party connection warning when prompted.
 
-The logged-in character loads automatically. You can also look up a friend's
-public profile by username. Skills, activities, and boss kill counts come only
-from official public OSRS Hiscores. Quest completion is unavailable in this
-version and is never guessed. Next Move does not require an account or a custom
+The logged-in character loads automatically. Its skills, activities, and boss
+kill counts come from official public OSRS Hiscores, while its complete quest
+state is read directly from the local RuneLite client. You can also look up a
+friend's public profile by username, but friend lookups remain Hiscores-only and
+never guess quest completion. Next Move does not require an account or a custom
 sync code for this visual companion.
 
 ## Privacy and data sources
 
-Next Move reads analysis from a fixed, public, read-only endpoint. The analysis
-is built only from official public OSRS Hiscores. Quest completion is not read
-or inferred. The plugin does not automate gameplay, write to the game, or read
-credentials. Friend lookups are temporary and are not saved by the plugin.
+Next Move sends the logged-in character's RSN and complete quest states to its
+fixed HTTPS endpoint. The service processes that snapshot transiently, combines
+it with official public OSRS Hiscores, and does not persist the snapshot. The
+plugin does not automate gameplay, write to the game, or read credentials.
+Friend lookups send only the selected public RSN and remain in memory.
 
 See [docs/privacy.md](docs/privacy.md) for the complete boundary.
 

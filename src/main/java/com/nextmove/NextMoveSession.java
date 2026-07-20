@@ -18,7 +18,7 @@ final class NextMoveSession
 	{
 		void showCurrentCharacter(String username);
 
-		void loadCurrentCharacter(String username);
+		void loadCurrentCharacter(String username, QuestSnapshot snapshot);
 
 		void clearCurrentCharacter();
 
@@ -49,7 +49,7 @@ final class NextMoveSession
 		toolbar.add();
 	}
 
-	void loggedIn(String username)
+	void loggedIn(String username, QuestSnapshot snapshot)
 	{
 		if (!started)
 		{
@@ -69,7 +69,7 @@ final class NextMoveSession
 		}
 		if (!selected.equals(lastLoadedUsername))
 		{
-			profile.loadCurrentCharacter(selected);
+			profile.loadCurrentCharacter(selected, Objects.requireNonNull(snapshot));
 			lastLoadedUsername = selected;
 		}
 	}

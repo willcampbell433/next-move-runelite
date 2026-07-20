@@ -190,8 +190,21 @@ public class NextMovePanelTest
 		String text = harness.text();
 		assertTrue(text.contains("osrsnextmove.com"));
 		assertTrue(text.contains("official public Hiscores"));
-		assertTrue(text.contains("Quest completion is unavailable"));
+		assertTrue(text.contains("logged-in character"));
+		assertTrue(text.contains("quest progress"));
+		assertTrue(text.contains("Friend lookups use Hiscores only"));
 		assertFalse(text.contains("Disable public lookup"));
+	}
+
+	@Test
+	public void questAwareCurrentCharacterExplainsItsCombinedSources()
+	{
+		Harness harness = panel();
+		ProfileResponse response = fixtureForQuestAware("full-profile.json", "lastwilll");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"lastwilll", "lastwilll", false, response)));
+
+		assertTrue(harness.text().contains("RuneLite quests · Hiscores skills"));
 	}
 
 	private static Harness panel()
@@ -231,6 +244,26 @@ public class NextMovePanelTest
 			}
 			String json = new String(stream.readAllBytes(), StandardCharsets.UTF_8)
 				.replace("\"username\": \"italiaboi69\"", "\"username\": \"" + username + "\"");
+			return new Gson().fromJson(json, ProfileResponse.class);
+		}
+		catch (IOException exception)
+		{
+			throw new IllegalStateException(exception);
+		}
+	}
+
+	private static ProfileResponse fixtureForQuestAware(String name, String username)
+	{
+		try (InputStream stream = NextMovePanelTest.class.getResourceAsStream("/fixtures/" + name))
+		{
+			if (stream == null)
+			{
+				throw new IllegalStateException("Missing fixture " + name);
+			}
+			String json = new String(stream.readAllBytes(), StandardCharsets.UTF_8)
+				.replace("\"username\": \"italiaboi69\"", "\"username\": \"" + username + "\"")
+				.replace("\"dataSource\": \"HISCORES\"", "\"dataSource\": \"RUNELITE\"")
+				.replace("\"questData\": \"MISSING\"", "\"questData\": \"AVAILABLE\"");
 			return new Gson().fromJson(json, ProfileResponse.class);
 		}
 		catch (IOException exception)

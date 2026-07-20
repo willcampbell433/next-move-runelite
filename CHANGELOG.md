@@ -2,6 +2,18 @@
 
 All notable changes to Next Move for RuneLite will be documented here.
 
+## 0.1.2 — 2026-07-20
+
+- Added a complete, first-party quest snapshot for the logged-in character.
+- Combined transient RuneLite quest state with official Hiscores skills and KC.
+- Recapture the full quest snapshot on explicit Refresh so missed events cannot
+  leave the profile in a partially updated state.
+- Kept friend lookup Hiscores-only and prevented the local character's quest
+  data from being attached to friend requests.
+- Added distinct source labels for quest-aware and Hiscores-only profiles.
+- Documented the exact HTTPS payload, in-memory client behavior, and transient
+  server processing boundary.
+
 ## 0.1.0 — 2026-07-18
 
 - Added the read-only Account, Coach, and Bosses sidebar views.

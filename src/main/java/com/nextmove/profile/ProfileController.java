@@ -1,5 +1,6 @@
 package com.nextmove.profile;
 
+import com.nextmove.QuestSnapshot;
 import com.nextmove.api.NextMoveClient;
 import com.nextmove.api.ProfileFailure;
 import com.nextmove.api.ProfileRequest;
@@ -11,7 +12,10 @@ public class ProfileController
 {
 	interface Loader
 	{
-		ProfileRequest load(String username, NextMoveClient.Callback callback);
+		ProfileRequest load(
+			String username,
+			QuestSnapshot snapshot,
+			NextMoveClient.Callback callback);
 	}
 
 	private final Loader loader;
@@ -22,11 +26,12 @@ public class ProfileController
 	private ProfileResponse lastSuccessfulProfile;
 	private String lastSuccessfulUsername;
 	private String currentCharacter;
+	private QuestSnapshot currentQuestSnapshot;
 	private boolean closed;
 
 	public ProfileController(NextMoveClient client, ProfileView view)
 	{
-		this(client::load, view);
+		this((username, snapshot, callback) -> client.load(username, snapshot, callback), view);
 	}
 
 	ProfileController(Loader loader, ProfileView view)
@@ -55,7 +60,12 @@ public class ProfileController
 		long requestGeneration = ++generation;
 		cancelInFlight();
 		render(ProfileState.loading(selected, currentCharacter, effectiveFriend));
-		inFlight = loader.load(selected, new NextMoveClient.Callback()
+		QuestSnapshot requestSnapshot = effectiveFriend
+			? null
+			: currentCharacter != null && selected.equalsIgnoreCase(currentCharacter)
+				? currentQuestSnapshot
+				: null;
+		inFlight = loader.load(selected, requestSnapshot, new NextMoveClient.Callback()
 		{
 			@Override
 			public void onSuccess(ProfileResponse response)
@@ -89,6 +99,13 @@ public class ProfileController
 
 	public synchronized void setCurrentCharacter(String username)
 	{
+		setCurrentCharacter(username, null);
+	}
+
+	public synchronized void setCurrentCharacter(
+		String username,
+		QuestSnapshot snapshot)
+	{
 		String selected = username == null ? "" : username.trim();
 		if (selected.isEmpty())
 		{
@@ -96,6 +113,7 @@ public class ProfileController
 			return;
 		}
 		currentCharacter = selected;
+		currentQuestSnapshot = snapshot;
 		if (state.isFriendActive())
 		{
 			render(state.withCurrentCharacter(selected));
@@ -104,9 +122,25 @@ public class ProfileController
 		load(selected, false);
 	}
 
+	public synchronized void refreshCurrentCharacter(QuestSnapshot snapshot)
+	{
+		if (currentCharacter == null)
+		{
+			return;
+		}
+		currentQuestSnapshot = Objects.requireNonNull(snapshot);
+		load(currentCharacter, false);
+	}
+
+	public synchronized boolean isFriendActive()
+	{
+		return state.isFriendActive();
+	}
+
 	public synchronized void clearCurrentCharacter()
 	{
 		currentCharacter = null;
+		currentQuestSnapshot = null;
 		if (state.isFriendActive())
 		{
 			render(state.withCurrentCharacter(null));
@@ -132,6 +166,7 @@ public class ProfileController
 		cancelInFlight();
 		lastSuccessfulProfile = null;
 		lastSuccessfulUsername = null;
+		currentQuestSnapshot = null;
 		state = ProfileState.notLoaded(currentCharacter);
 	}
 

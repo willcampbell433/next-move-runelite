@@ -1,6 +1,8 @@
 package com.nextmove.api;
 
 import com.google.gson.Gson;
+import com.nextmove.QuestSnapshot;
+import java.util.List;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +24,31 @@ import static org.junit.Assert.assertTrue;
 
 public class NextMoveClientTest
 {
+	@Test
+	public void postsTheCurrentCharactersQuestSnapshot()
+	{
+		FakeCallFactory factory = FakeCallFactory.respond(200, fixture("full-profile.json"));
+		Result result = new Result();
+		QuestSnapshot snapshot = new QuestSnapshot(
+			"2026-07-20T15:00:00Z",
+			"lastwilll",
+			List.of(new QuestSnapshot.QuestEntry(
+				"INTO_THE_TOMBS", "Into the Tombs", "NOT_STARTED")),
+			"0.1.2");
+
+		new NextMoveClient(factory, new Gson()).load("lastwilll", snapshot, result);
+
+		assertEquals(
+			"https://osrsnextmove.com/api/runelite/profile?player=lastwilll",
+			factory.capturedRequest.url().toString());
+		assertEquals("POST", factory.capturedRequest.method());
+		assertEquals("application/json; charset=utf-8",
+			Objects.requireNonNull(factory.capturedRequest.body()).contentType().toString());
+		assertTrue(requestBody(factory.capturedRequest).contains("\"INTO_THE_TOMBS\""));
+		assertNotNull(result.response);
+		assertNull(result.failure);
+	}
+
 	@Test
 	public void buildsOneFixedGetRequestAndParsesV1()
 	{
@@ -118,6 +145,20 @@ public class NextMoveClientTest
 		Result result = new Result();
 		new NextMoveClient(factory, new Gson()).load(username, result);
 		return result;
+	}
+
+	private static String requestBody(Request request)
+	{
+		try
+		{
+			okio.Buffer buffer = new okio.Buffer();
+			Objects.requireNonNull(request.body()).writeTo(buffer);
+			return buffer.readUtf8();
+		}
+		catch (IOException exception)
+		{
+			throw new IllegalStateException(exception);
+		}
 	}
 
 	private static String fixture(String name)
