@@ -16,7 +16,7 @@ Explore the full coach at [osrsnextmove.com](https://osrsnextmove.com).
 
 - **Account** — overall account score, progression tier, category scores, and
   earned titles.
-- **Coach** — up to 32 ranked recommendations in one scrollable feed, with
+- **Coach** — up to 50 ranked recommendations in one scrollable feed, with
   Skilling, Bosses, Quests, PvM, and Unlock filters. Every idea includes the
   reason it fits and the next meaningful checkpoint. Choose **Track this goal**
   to temporarily focus the sidebar on one idea while you play.
