@@ -2,6 +2,7 @@ package com.nextmove.ui;
 
 import com.google.gson.Gson;
 import com.nextmove.api.ProfileResponse;
+import com.nextmove.completion.CompletedRecommendation;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.FlowLayout;
@@ -44,6 +45,9 @@ public class CoachPanelTest
 		assertFalse(text.contains("\nNot today\n"));
 		assertFalse(text.contains("\nSave\n"));
 		assertFalse(text.contains("\nTrack\n"));
+		assertFalse(text.contains("Mark done"));
+		assertFalse(text.contains("Completed ("));
+		assertFalse(text.contains("Restore"));
 		assertFalse(text.contains("•"));
 		assertFalse(text.contains("width: 205px"));
 		assertFalse(hasLayout(panel, FlowLayout.class));
@@ -107,6 +111,82 @@ public class CoachPanelTest
 		String browsing = text(panel);
 		assertTrue(browsing.contains("Start the Inferno cape grind"));
 		assertTrue(browsing.contains("Push Ranged to 100"));
+	}
+
+	@Test
+	public void ownCharacterCanCompleteAFocusedGoalAndRestoreItLocally()
+	{
+		ProfileResponse.Profile profile = fixture("full-profile.json").getProfile();
+		ProfileResponse.Recommendation first = profile.getRecommendations().get(0);
+		AtomicReference<String> focused = new AtomicReference<>(first.getId());
+		AtomicReference<String> marked = new AtomicReference<>();
+		AtomicReference<String> restored = new AtomicReference<>();
+		AtomicReference<CoachPanel> rendered = new AtomicReference<>();
+		onEdt(() -> {
+			CoachPanel panel = new CoachPanel();
+			panel.render(
+				profile,
+				first.getId(),
+				true,
+				List.of(),
+				focused::set,
+				recommendation -> marked.set(recommendation.getId()),
+				restored::set);
+			rendered.set(panel);
+		});
+		CoachPanel panel = rendered.get();
+
+		assertTrue(text(panel).contains("Mark done"));
+		click(panel, "Mark done");
+
+		String afterMark = text(panel);
+		assertEquals(first.getId(), marked.get());
+		assertEquals(null, focused.get());
+		assertFalse(afterMark.contains(first.getTitle()));
+		assertTrue(afterMark.contains("Push Ranged to 100"));
+		assertTrue(afterMark.contains("Completed (1)"));
+
+		click(panel, "Completed (1)");
+		String expanded = text(panel);
+		assertTrue(expanded.contains(first.getTitle()));
+		assertTrue(expanded.contains("Restore"));
+
+		click(panel, "Restore");
+		assertEquals(first.getId(), restored.get());
+		assertFalse(text(panel).contains("Completed ("));
+	}
+
+	@Test
+	public void rendersPersistedCompletionDetailsForTheCurrentCharacter()
+	{
+		ProfileResponse.Profile profile = fixture("full-profile.json").getProfile();
+		ProfileResponse.Recommendation first = profile.getRecommendations().get(0);
+		CompletedRecommendation completed = new CompletedRecommendation(
+			first.getId(),
+			first.getTitle(),
+			first.getCategory(),
+			"2026-07-21T15:00:00Z");
+		AtomicReference<CoachPanel> rendered = new AtomicReference<>();
+		onEdt(() -> {
+			CoachPanel panel = new CoachPanel();
+			panel.render(
+				profile,
+				null,
+				true,
+				List.of(completed),
+				ignored -> { },
+				ignored -> { },
+				ignored -> { });
+			rendered.set(panel);
+		});
+
+		CoachPanel panel = rendered.get();
+		assertFalse(text(panel).contains(first.getTitle()));
+		click(panel, "Completed (1)");
+		String expanded = text(panel);
+		assertTrue(expanded.contains(first.getTitle()));
+		assertTrue(expanded.contains("BOSSING"));
+		assertTrue(expanded.contains("2026-07-21"));
 	}
 
 	private static String render(ProfileResponse.Profile profile)

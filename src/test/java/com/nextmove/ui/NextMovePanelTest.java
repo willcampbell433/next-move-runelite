@@ -2,6 +2,7 @@ package com.nextmove.ui;
 
 import com.google.gson.Gson;
 import com.nextmove.api.ProfileResponse;
+import com.nextmove.completion.CompletedRecommendation;
 import com.nextmove.profile.ProfileState;
 import java.awt.Component;
 import java.awt.Container;
@@ -199,6 +200,33 @@ public class NextMovePanelTest
 			"lastwilll", "lastwilll", false, response)));
 
 		assertTrue(harness.text().contains("RuneLite quests · Hiscores skills"));
+	}
+
+	@Test
+	public void currentCharacterGetsLocalCompletionControlsButFriendsDoNot()
+	{
+		Harness harness = panel();
+		harness.actions.completed.add(new CompletedRecommendation(
+			"milestone:dragon-defender",
+			"Earn the dragon defender",
+			"UNLOCK",
+			"2026-07-21T15:00:00Z"));
+		ProfileResponse current = fixtureForUsername("full-profile.json", "lastwilll");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"lastwilll", "lastwilll", false, current)));
+		harness.click("Coach");
+
+		assertTrue(harness.text().contains("Mark done"));
+		assertTrue(harness.text().contains("Completed (1)"));
+		harness.click("Mark done");
+		assertEquals(1, harness.actions.marked.size());
+
+		ProfileResponse friend = fixture("full-profile.json");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"italiaboi69", "lastwilll", true, friend)));
+		assertFalse(harness.text().contains("Mark done"));
+		assertFalse(harness.text().contains("Completed ("));
+		assertFalse(harness.text().contains("Restore"));
 	}
 
 	private static Harness panel()
@@ -506,6 +534,9 @@ public class NextMovePanelTest
 		private int currentCharacterCount;
 		private int clearCount;
 		private String lastUsername;
+		private final List<CompletedRecommendation> completed = new ArrayList<>();
+		private final List<ProfileResponse.Recommendation> marked = new ArrayList<>();
+		private final List<String> restored = new ArrayList<>();
 
 		@Override
 		public void load(String username, boolean friend)
@@ -522,6 +553,24 @@ public class NextMovePanelTest
 		@Override
 		public void returnToCurrentCharacter()
 		{
+		}
+
+		@Override
+		public void markDone(ProfileResponse.Recommendation recommendation)
+		{
+			marked.add(recommendation);
+		}
+
+		@Override
+		public void restoreCompleted(String recommendationId)
+		{
+			restored.add(recommendationId);
+		}
+
+		@Override
+		public List<CompletedRecommendation> completedRecommendations(String username)
+		{
+			return List.copyOf(completed);
 		}
 
 	}

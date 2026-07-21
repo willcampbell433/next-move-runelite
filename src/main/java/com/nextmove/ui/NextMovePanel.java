@@ -1,6 +1,7 @@
 package com.nextmove.ui;
 
 import com.nextmove.api.ProfileResponse;
+import com.nextmove.completion.CompletedRecommendation;
 import com.nextmove.links.LinkFactory;
 import com.nextmove.profile.ProfileController;
 import com.nextmove.profile.ProfileState;
@@ -11,6 +12,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -50,6 +52,11 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 
 		void returnToCurrentCharacter();
 
+		void markDone(ProfileResponse.Recommendation recommendation);
+
+		void restoreCompleted(String recommendationId);
+
+		List<CompletedRecommendation> completedRecommendations(String username);
 	}
 
 	private enum View
@@ -117,6 +124,24 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 			public void returnToCurrentCharacter()
 			{
 				controller.returnToCurrentCharacter();
+			}
+
+			@Override
+			public void markDone(ProfileResponse.Recommendation recommendation)
+			{
+				controller.markDone(recommendation);
+			}
+
+			@Override
+			public void restoreCompleted(String recommendationId)
+			{
+				controller.restoreCompleted(recommendationId);
+			}
+
+			@Override
+			public List<CompletedRecommendation> completedRecommendations(String username)
+			{
+				return controller.completedRecommendations(username);
 			}
 
 		};
@@ -231,16 +256,28 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 				ProfileResponse.Profile profile = state.getProfile().getProfile();
 				CoachPanel coach = new CoachPanel();
 				String accountKey = profile.getUsername().toLowerCase(Locale.ROOT);
-				coach.render(profile, focusedGoals.get(accountKey), focusedGoalId -> {
-					if (focusedGoalId == null)
-					{
-						focusedGoals.remove(accountKey);
-					}
-					else
-					{
-						focusedGoals.put(accountKey, focusedGoalId);
-					}
-				});
+				boolean editable = !state.isFriendActive()
+					&& currentCharacterName != null
+					&& sameAccount(profile.getUsername(), currentCharacterName);
+				coach.render(
+					profile,
+					focusedGoals.get(accountKey),
+					editable,
+					editable
+						? actions.completedRecommendations(profile.getUsername())
+						: List.of(),
+					focusedGoalId -> {
+						if (focusedGoalId == null)
+						{
+							focusedGoals.remove(accountKey);
+						}
+						else
+						{
+							focusedGoals.put(accountKey, focusedGoalId);
+						}
+					},
+					actions::markDone,
+					actions::restoreCompleted);
 				panel.add(coach);
 			}
 			else
@@ -427,6 +464,18 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		return username == null || username.isEmpty() ? "player" : username;
 	}
 
+	private static boolean sameAccount(String left, String right)
+	{
+		return normalizeAccount(left).equals(normalizeAccount(right));
+	}
+
+	private static String normalizeAccount(String value)
+	{
+		return value == null
+			? ""
+			: value.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", "_");
+	}
+
 	private static JPanel messagePanel(String message)
 	{
 		JPanel panel = vertical();
@@ -497,6 +546,22 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		@Override
 		public void returnToCurrentCharacter()
 		{
+		}
+
+		@Override
+		public void markDone(ProfileResponse.Recommendation recommendation)
+		{
+		}
+
+		@Override
+		public void restoreCompleted(String recommendationId)
+		{
+		}
+
+		@Override
+		public List<CompletedRecommendation> completedRecommendations(String username)
+		{
+			return List.of();
 		}
 
 	}
