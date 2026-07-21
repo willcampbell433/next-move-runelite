@@ -1,6 +1,8 @@
 package com.nextmove.api;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -86,6 +88,36 @@ public class ProfileValidatorTest
 				"2026-07-17T14:00:00.000Z", "not-a-timestamp"),
 			ProfileResponse.class);
 		ProfileValidator.validate(response);
+	}
+
+	@Test
+	public void acceptsThirtyTwoRecommendations()
+	{
+		ProfileValidator.validate(profileWithRecommendationCount(32));
+	}
+
+	@Test(expected = ProfileValidationException.class)
+	public void rejectsThirtyThreeRecommendations()
+	{
+		ProfileValidator.validate(profileWithRecommendationCount(33));
+	}
+
+	private ProfileResponse profileWithRecommendationCount(int count)
+	{
+		JsonObject root = gson.fromJson(fixtureText("full-profile.json"), JsonObject.class);
+		JsonObject profile = root.getAsJsonObject("profile");
+		JsonObject template = profile.getAsJsonArray("recommendations")
+			.get(0).getAsJsonObject();
+		JsonArray recommendations = new JsonArray();
+		for (int index = 0; index < count; index++)
+		{
+			JsonObject recommendation = template.deepCopy();
+			recommendation.addProperty("id", "recommendation-" + index);
+			recommendations.add(recommendation);
+		}
+		profile.add("recommendation", recommendations.get(0).deepCopy());
+		profile.add("recommendations", recommendations);
+		return gson.fromJson(root, ProfileResponse.class);
 	}
 
 	private ProfileResponse fixture(String name)

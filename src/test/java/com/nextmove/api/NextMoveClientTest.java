@@ -60,8 +60,9 @@ public class NextMoveClientTest
 			factory.capturedRequest.url().toString());
 		assertEquals("GET", factory.capturedRequest.method());
 		assertEquals("application/json", factory.capturedRequest.header("Accept"));
-		assertTrue(Objects.requireNonNull(factory.capturedRequest.header("User-Agent"))
-			.startsWith("Next-Move-RuneLite/"));
+		assertEquals(
+			"Next-Move-RuneLite/0.2.0",
+			factory.capturedRequest.header("User-Agent"));
 		assertNotNull(result.response);
 		assertNull(result.failure);
 	}

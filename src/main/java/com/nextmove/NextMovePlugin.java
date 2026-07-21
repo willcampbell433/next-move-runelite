@@ -26,8 +26,6 @@ import net.runelite.client.util.ImageUtil;
 )
 public class NextMovePlugin extends Plugin
 {
-	private static final String PLUGIN_VERSION = "0.1.3";
-
 	@Inject
 	private Client client;
 
@@ -56,7 +54,7 @@ public class NextMovePlugin extends Plugin
 		panel = new NextMovePanel(configManager);
 		controller = new ProfileController(nextMoveClient, panel);
 		panel.setController(controller, this::refreshActiveProfile);
-		questSnapshotBuilder = new QuestSnapshotBuilder(PLUGIN_VERSION);
+		questSnapshotBuilder = new QuestSnapshotBuilder(NextMoveVersion.CURRENT);
 
 		BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/panel-icon.png");
 		navigationButton = NavigationButton.builder()
