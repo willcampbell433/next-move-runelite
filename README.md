@@ -6,18 +6,19 @@ Next Move is a read-only RuneLite sidebar for answering the most important
 question in Old School RuneScape: **what should I do next?**
 
 It combines official public Hiscores with the logged-in character's RuneLite
-quest states to produce a playful account verdict, a focused deck of short-term
+quest states to produce a playful account verdict, ranked short-term
 recommendations, and a boss-progression view without replacing the full Next
 Move website.
 
 Explore the full coach at [osrsnextmove.com](https://osrsnextmove.com).
 
-## What v0.1 includes
+## What v0.2 includes
 
 - **Account** — overall account score, progression tier, category scores, and
   earned titles.
-- **Coach** — a bounded deck of short-term recommendations, each with the
-  reason it fits and the next meaningful unlock.
+- **Coach** — up to 32 ranked recommendations in one scrollable feed, with
+  Skilling, Bosses, Quests, PvM, and Unlock filters. Every idea includes the
+  reason it fits and the next meaningful checkpoint.
 - **Bosses** — Boss Bravery score, next boss challenge, attempted kill counts,
   and boss achievements.
 - **Friend lookup** — temporarily inspect another public OSRS account and
@@ -25,10 +26,9 @@ Explore the full coach at [osrsnextmove.com](https://osrsnextmove.com).
 - **Safe links** — open the relevant full OSRS Wiki guide or the matching Next
   Move website page in the system browser.
 
-The Coach can cycle through a bounded public recommendation deck with **Next
-idea** or choose directly from the visible **Other ideas** list. The selected
-idea stays isolated per username for the current RuneLite session. Durable
-**Done**, goal tracking, and recommendation history remain on the website.
+The Coach keeps the server-ranked order while letting you narrow the feed by
+activity type. Durable **Done**, goal tracking, and recommendation history
+remain on the website.
 
 ## Setup
 

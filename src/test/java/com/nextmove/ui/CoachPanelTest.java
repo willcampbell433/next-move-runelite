@@ -34,6 +34,12 @@ public class CoachPanelTest
 		assertTrue(text.contains("First Inferno completion"));
 		assertTrue(text.contains("Open Wiki guide"));
 		assertTrue(text.contains("Continue on Next Move"));
+		assertTrue(text.contains("Push Ranged to 100"));
+		assertTrue(text.contains("A short mastery checkpoint keeps the account moving."));
+		assertTrue(text.contains("The next Ranged mastery checkpoint"));
+		assertTrue(text.contains("SHOWING 2 OF 2 IDEAS"));
+		assertFalse(text.contains("Next idea"));
+		assertFalse(text.contains("OTHER IDEAS"));
 		assertFalse(text.contains("\nDone\n"));
 		assertFalse(text.contains("\nNot today\n"));
 		assertFalse(text.contains("\nSave\n"));
@@ -42,6 +48,39 @@ public class CoachPanelTest
 		assertFalse(text.contains("width: 205px"));
 		assertFalse(hasLayout(panel, FlowLayout.class));
 		assertEquals(Component.LEFT_ALIGNMENT, panel.getAlignmentX(), 0.0f);
+	}
+
+	@Test
+	public void filtersTheFullFeedByRecommendationCategory()
+	{
+		CoachPanel panel = renderPanel(fixture("full-profile.json").getProfile());
+		String initial = text(panel);
+		for (String filter : new String[] {"All", "Skilling", "Bosses", "Quests", "PvM", "Unlocks"})
+		{
+			assertTrue(initial.contains(filter));
+		}
+
+		click(panel, "Skilling");
+		String skilling = text(panel);
+		assertTrue(skilling.contains("Push Ranged to 100"));
+		assertFalse(skilling.contains("Start the Inferno cape grind"));
+		assertTrue(skilling.contains("SHOWING 1 OF 2 IDEAS"));
+
+		click(panel, "Bosses");
+		String bosses = text(panel);
+		assertTrue(bosses.contains("Start the Inferno cape grind"));
+		assertFalse(bosses.contains("Push Ranged to 100"));
+	}
+
+	@Test
+	public void rendersAUsefulEmptyFilterState()
+	{
+		CoachPanel panel = renderPanel(fixture("full-profile.json").getProfile());
+		click(panel, "Quests");
+
+		String text = text(panel);
+		assertTrue(text.contains("No Quest ideas are ready for this account."));
+		assertTrue(text.contains("Show all ideas"));
 	}
 
 	@Test
@@ -73,6 +112,39 @@ public class CoachPanelTest
 		AtomicReference<String> rendered = new AtomicReference<>();
 		onEdt(() -> rendered.set(String.join("\n", textOf(panel))));
 		return rendered.get();
+	}
+
+	private static void click(Component component, String label)
+	{
+		onEdt(() -> {
+			AbstractButton button = button(component, label);
+			if (button == null)
+			{
+				throw new AssertionError("Missing button " + label);
+			}
+			button.doClick();
+		});
+	}
+
+	private static AbstractButton button(Component component, String label)
+	{
+		if (component instanceof AbstractButton
+			&& label.equals(((AbstractButton) component).getText()))
+		{
+			return (AbstractButton) component;
+		}
+		if (component instanceof Container)
+		{
+			for (Component child : ((Container) component).getComponents())
+			{
+				AbstractButton found = button(child, label);
+				if (found != null)
+				{
+					return found;
+				}
+			}
+		}
+		return null;
 	}
 
 	private static boolean hasLayout(Component component, Class<?> layoutType)

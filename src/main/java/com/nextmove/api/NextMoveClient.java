@@ -2,6 +2,7 @@ package com.nextmove.api;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
+import com.nextmove.NextMoveVersion;
 import com.nextmove.QuestSnapshot;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class NextMoveClient
 	private static final HttpUrl ENDPOINT = Objects.requireNonNull(
 		HttpUrl.parse("https://osrsnextmove.com/api/runelite/profile"));
 	private static final Pattern USERNAME = Pattern.compile("[A-Za-z0-9 _-]{1,12}");
-	private static final String USER_AGENT = "Next-Move-RuneLite/0.1.2";
+	private static final String USER_AGENT = NextMoveVersion.userAgent();
 	private static final okhttp3.MediaType JSON = okhttp3.MediaType.get(
 		"application/json; charset=utf-8");
 

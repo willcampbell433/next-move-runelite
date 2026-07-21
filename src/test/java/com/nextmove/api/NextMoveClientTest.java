@@ -1,6 +1,7 @@
 package com.nextmove.api;
 
 import com.google.gson.Gson;
+import com.nextmove.NextMoveVersion;
 import com.nextmove.QuestSnapshot;
 import java.util.List;
 import java.io.IOException;
@@ -24,6 +25,13 @@ import static org.junit.Assert.assertTrue;
 
 public class NextMoveClientTest
 {
+	@Test
+	public void browserReleaseUsesOneVersionEverywhere()
+	{
+		assertEquals("0.2.0", NextMoveVersion.CURRENT);
+		assertEquals("Next-Move-RuneLite/0.2.0", NextMoveVersion.userAgent());
+	}
+
 	@Test
 	public void postsTheCurrentCharactersQuestSnapshot()
 	{
@@ -60,8 +68,9 @@ public class NextMoveClientTest
 			factory.capturedRequest.url().toString());
 		assertEquals("GET", factory.capturedRequest.method());
 		assertEquals("application/json", factory.capturedRequest.header("Accept"));
-		assertTrue(Objects.requireNonNull(factory.capturedRequest.header("User-Agent"))
-			.startsWith("Next-Move-RuneLite/"));
+		assertEquals(
+			"Next-Move-RuneLite/0.2.0",
+			factory.capturedRequest.header("User-Agent"));
 		assertNotNull(result.response);
 		assertNull(result.failure);
 	}
