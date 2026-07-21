@@ -1,11 +1,14 @@
 package com.nextmove.ui;
 
 import com.nextmove.api.ProfileResponse;
+import com.nextmove.completion.CompletedRecommendation;
 import com.nextmove.links.LinkFactory;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -46,7 +49,12 @@ public class CoachPanel extends JPanel
 	private List<ProfileResponse.Recommendation> recommendations = List.of();
 	private Filter selectedFilter = Filter.ALL;
 	private String focusedGoalId;
+	private boolean editable;
+	private boolean completedOpen;
+	private List<CompletedRecommendation> completedRecommendations = List.of();
 	private Consumer<String> focusChanged = ignored -> { };
+	private Consumer<ProfileResponse.Recommendation> markDone = ignored -> { };
+	private Consumer<String> restore = ignored -> { };
 
 	public CoachPanel()
 	{
@@ -65,11 +73,38 @@ public class CoachPanel extends JPanel
 		String focusedGoalId,
 		Consumer<String> focusChanged)
 	{
+		render(
+			profile,
+			focusedGoalId,
+			false,
+			List.of(),
+			focusChanged,
+			ignored -> { },
+			ignored -> { });
+	}
+
+	public void render(
+		ProfileResponse.Profile profile,
+		String focusedGoalId,
+		boolean editable,
+		List<CompletedRecommendation> completedRecommendations,
+		Consumer<String> focusChanged,
+		Consumer<ProfileResponse.Recommendation> markDone,
+		Consumer<String> restore)
+	{
 		this.profile = profile;
-		this.recommendations = recommendationDeck(profile);
+		this.completedRecommendations = new ArrayList<>(completedRecommendations);
+		this.recommendations = recommendationDeck(profile).stream()
+			.filter(recommendation -> this.completedRecommendations.stream()
+				.noneMatch(completed -> completed.getId().equals(recommendation.getId())))
+			.collect(Collectors.toCollection(ArrayList::new));
 		this.selectedFilter = Filter.ALL;
 		this.focusedGoalId = focusedGoalId;
+		this.editable = editable;
+		this.completedOpen = false;
 		this.focusChanged = focusChanged;
+		this.markDone = markDone;
+		this.restore = restore;
 		rebuild();
 	}
 
@@ -92,6 +127,7 @@ public class CoachPanel extends JPanel
 				rebuild();
 			});
 			add(SidebarUi.buttonStack(browse));
+			addCompletedSection();
 			revalidate();
 			repaint();
 			return;
@@ -132,8 +168,11 @@ public class CoachPanel extends JPanel
 			}
 		}
 
+		addCompletedSection();
 		add(gap(12));
-		add(wrapped("Browse every ranked idea here. Durable completion and full history stay on the Next Move website."));
+		add(wrapped(editable
+			? "Completed goals are stored locally for this character. Full goal tracking and history stay on the Next Move website."
+			: "Browse every ranked idea here. Goal tracking and completion controls are available only for your logged-in character."));
 		revalidate();
 		repaint();
 	}
@@ -191,6 +230,7 @@ public class CoachPanel extends JPanel
 		JButton wiki = new JButton("Open Wiki guide");
 		wiki.addActionListener(event -> LinkBrowser.browse(
 			LinkFactory.wiki(recommendation.getWikiTitle())));
+		List<JButton> actions = new ArrayList<>();
 		if (showTrackAction)
 		{
 			JButton track = new JButton("Track this goal");
@@ -199,18 +239,95 @@ public class CoachPanel extends JPanel
 				focusChanged.accept(focusedGoalId);
 				rebuild();
 			});
-			card.add(SidebarUi.buttonStack(track, wiki, websiteButton(recommendation)));
+			actions.add(track);
 		}
-		else
+		if (editable)
 		{
-			card.add(SidebarUi.buttonStack(wiki, websiteButton(recommendation)));
+			JButton done = new JButton("Mark done");
+			done.addActionListener(event -> complete(recommendation));
+			actions.add(done);
 		}
+		actions.add(wiki);
+		actions.add(websiteButton(recommendation));
+		card.add(SidebarUi.buttonStack(actions.toArray(new JButton[0])));
 		card.add(gap(10));
 		JSeparator divider = new JSeparator();
 		divider.setAlignmentX(Component.LEFT_ALIGNMENT);
 		divider.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
 		card.add(divider);
 		return card;
+	}
+
+	private void complete(ProfileResponse.Recommendation recommendation)
+	{
+		markDone.accept(recommendation);
+		recommendations = recommendations.stream()
+			.filter(candidate -> !recommendation.getId().equals(candidate.getId()))
+			.collect(Collectors.toList());
+		List<CompletedRecommendation> updated = completedRecommendations.stream()
+			.filter(candidate -> !recommendation.getId().equals(candidate.getId()))
+			.collect(Collectors.toCollection(ArrayList::new));
+		updated.add(0, new CompletedRecommendation(
+			recommendation.getId(),
+			recommendation.getTitle(),
+			recommendation.getCategory(),
+			Instant.now().toString()));
+		completedRecommendations = updated;
+		if (recommendation.getId().equals(focusedGoalId))
+		{
+			focusedGoalId = null;
+			focusChanged.accept(null);
+		}
+		rebuild();
+	}
+
+	private void addCompletedSection()
+	{
+		if (!editable || completedRecommendations.isEmpty())
+		{
+			return;
+		}
+		add(gap(12));
+		JButton toggle = new JButton("Completed (" + completedRecommendations.size() + ")");
+		toggle.addActionListener(event -> {
+			completedOpen = !completedOpen;
+			rebuild();
+		});
+		add(SidebarUi.buttonStack(toggle));
+		if (!completedOpen)
+		{
+			return;
+		}
+		for (CompletedRecommendation completed : new ArrayList<>(completedRecommendations))
+		{
+			add(gap(8));
+			add(section(categoryLabel(completed.getCategory())));
+			add(wrapped(completed.getTitle()));
+			add(wrapped("Completed " + displayDate(completed.getCompletedAt())));
+			JButton restoreButton = new JButton("Restore");
+			restoreButton.addActionListener(event -> restore(completed));
+			add(SidebarUi.buttonStack(restoreButton));
+		}
+	}
+
+	private void restore(CompletedRecommendation completed)
+	{
+		restore.accept(completed.getId());
+		completedRecommendations = completedRecommendations.stream()
+			.filter(candidate -> !completed.getId().equals(candidate.getId()))
+			.collect(Collectors.toList());
+		if (completedRecommendations.isEmpty())
+		{
+			completedOpen = false;
+		}
+		rebuild();
+	}
+
+	private static String displayDate(String completedAt)
+	{
+		return completedAt != null && completedAt.length() >= 10
+			? completedAt.substring(0, 10)
+			: completedAt;
 	}
 
 	private JButton websiteButton(ProfileResponse.Recommendation recommendation)

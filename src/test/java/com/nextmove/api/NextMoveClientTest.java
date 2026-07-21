@@ -28,8 +28,8 @@ public class NextMoveClientTest
 	@Test
 	public void browserReleaseUsesOneVersionEverywhere()
 	{
-		assertEquals("0.2.1", NextMoveVersion.CURRENT);
-		assertEquals("Next-Move-RuneLite/0.2.1", NextMoveVersion.userAgent());
+		assertEquals("0.3.0", NextMoveVersion.CURRENT);
+		assertEquals("Next-Move-RuneLite/0.3.0", NextMoveVersion.userAgent());
 	}
 
 	@Test
@@ -42,7 +42,8 @@ public class NextMoveClientTest
 			"lastwilll",
 			List.of(new QuestSnapshot.QuestEntry(
 				"INTO_THE_TOMBS", "Into the Tombs", "NOT_STARTED")),
-			"0.1.2");
+			"0.1.2").withCompletedRecommendationIds(List.of(
+				"milestone:dragon-defender", "boss:vorkath"));
 
 		new NextMoveClient(factory, new Gson()).load("lastwilll", snapshot, result);
 
@@ -53,6 +54,8 @@ public class NextMoveClientTest
 		assertEquals("application/json; charset=utf-8",
 			Objects.requireNonNull(factory.capturedRequest.body()).contentType().toString());
 		assertTrue(requestBody(factory.capturedRequest).contains("\"INTO_THE_TOMBS\""));
+		assertTrue(requestBody(factory.capturedRequest).contains(
+			"\"completedRecommendationIds\":[\"milestone:dragon-defender\",\"boss:vorkath\"]"));
 		assertNotNull(result.response);
 		assertNull(result.failure);
 	}
@@ -69,7 +72,7 @@ public class NextMoveClientTest
 		assertEquals("GET", factory.capturedRequest.method());
 		assertEquals("application/json", factory.capturedRequest.header("Accept"));
 		assertEquals(
-			"Next-Move-RuneLite/0.2.1",
+			"Next-Move-RuneLite/0.3.0",
 			factory.capturedRequest.header("User-Agent"));
 		assertNotNull(result.response);
 		assertNull(result.failure);

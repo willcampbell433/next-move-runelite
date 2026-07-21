@@ -10,6 +10,7 @@ public final class QuestSnapshot
 	private final Account account;
 	private final List<QuestEntry> quests;
 	private final Source source;
+	private final List<String> completedRecommendationIds;
 
 	public QuestSnapshot(
 		String capturedAt,
@@ -17,10 +18,22 @@ public final class QuestSnapshot
 		List<QuestEntry> quests,
 		String pluginVersion)
 	{
+		this(capturedAt, displayName, quests, pluginVersion, List.of());
+	}
+
+	private QuestSnapshot(
+		String capturedAt,
+		String displayName,
+		List<QuestEntry> quests,
+		String pluginVersion,
+		List<String> completedRecommendationIds)
+	{
 		this.capturedAt = Objects.requireNonNull(capturedAt);
 		this.account = new Account(displayName);
 		this.quests = List.copyOf(Objects.requireNonNull(quests));
 		this.source = new Source(pluginVersion);
+		this.completedRecommendationIds = List.copyOf(
+			Objects.requireNonNull(completedRecommendationIds));
 	}
 
 	public int getSchemaVersion()
@@ -46,6 +59,21 @@ public final class QuestSnapshot
 	public Source getSource()
 	{
 		return source;
+	}
+
+	public List<String> getCompletedRecommendationIds()
+	{
+		return completedRecommendationIds;
+	}
+
+	public QuestSnapshot withCompletedRecommendationIds(List<String> ids)
+	{
+		return new QuestSnapshot(
+			capturedAt,
+			account.getDisplayName(),
+			quests,
+			source.getPluginVersion(),
+			ids);
 	}
 
 	public static final class Account

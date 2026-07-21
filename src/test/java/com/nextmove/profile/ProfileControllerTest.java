@@ -6,6 +6,9 @@ import com.nextmove.api.NextMoveClient;
 import com.nextmove.api.ProfileFailure;
 import com.nextmove.api.ProfileRequest;
 import com.nextmove.api.ProfileResponse;
+import com.nextmove.completion.CompletedRecommendation;
+import com.nextmove.completion.CompletionRepository;
+import java.time.Instant;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -116,6 +119,85 @@ public class ProfileControllerTest
 
 		assertEquals(2, loader.calls.size());
 		assertSame(refreshed, loader.calls.get(1).snapshot);
+	}
+
+	@Test
+	public void currentCharacterLoadsIncludeLocalCompletionIds()
+	{
+		FakeLoader loader = new FakeLoader();
+		FakeCompletions completions = new FakeCompletions();
+		completions.ids.add("milestone:dragon-defender");
+		ProfileController controller = new ProfileController(
+			loader, new RecordingView(), completions);
+
+		controller.setCurrentCharacter("lastwilll", SNAPSHOT);
+
+		assertEquals(List.of("milestone:dragon-defender"),
+			loader.calls.get(0).snapshot.getCompletedRecommendationIds());
+	}
+
+	@Test
+	public void markDonePersistsBeforeRefreshingAndSurvivesRefreshFailure()
+	{
+		FakeLoader loader = new FakeLoader();
+		RecordingView view = new RecordingView();
+		FakeCompletions completions = new FakeCompletions();
+		ProfileController controller = new ProfileController(loader, view, completions);
+		ProfileResponse profile = fixture("full-profile.json");
+		ProfileResponse.Recommendation recommendation = profile.getProfile()
+			.getRecommendations().get(0);
+
+		controller.setCurrentCharacter("lastwilll", SNAPSHOT);
+		loader.succeed(0, profile);
+		flushEdt();
+		controller.markDone(recommendation);
+
+		assertEquals(List.of(recommendation.getId()), completions.ids);
+		assertEquals(List.of(recommendation.getId()),
+			loader.calls.get(1).snapshot.getCompletedRecommendationIds());
+		loader.fail(1, ProfileFailure.Kind.UNAVAILABLE);
+		flushEdt();
+		assertEquals(ProfileState.Status.LOADED_STALE, view.latest.getStatus());
+		assertEquals(List.of(recommendation.getId()), completions.ids);
+	}
+
+	@Test
+	public void friendProfilesCannotMutateTheLocalCompletionLedger()
+	{
+		FakeLoader loader = new FakeLoader();
+		FakeCompletions completions = new FakeCompletions();
+		ProfileController controller = new ProfileController(
+			loader, new RecordingView(), completions);
+		ProfileResponse profile = fixture("full-profile.json");
+
+		controller.setCurrentCharacter("lastwilll", SNAPSHOT);
+		loader.succeed(0, profile);
+		flushEdt();
+		controller.load("italiaboi69", true);
+		loader.succeed(1, profile);
+		flushEdt();
+		controller.markDone(profile.getProfile().getRecommendations().get(0));
+
+		assertTrue(completions.ids.isEmpty());
+		assertEquals(2, loader.calls.size());
+	}
+
+	@Test
+	public void restoreRemovesTheEntryAndRefreshesTheCurrentCharacter()
+	{
+		FakeLoader loader = new FakeLoader();
+		FakeCompletions completions = new FakeCompletions();
+		completions.ids.add("idea:one");
+		ProfileController controller = new ProfileController(
+			loader, new RecordingView(), completions);
+
+		controller.setCurrentCharacter("lastwilll", SNAPSHOT);
+		loader.succeed(0, fixture("full-profile.json"));
+		flushEdt();
+		controller.restoreCompleted("idea:one");
+
+		assertTrue(completions.ids.isEmpty());
+		assertEquals(2, loader.calls.size());
 	}
 
 	@Test
@@ -284,6 +366,39 @@ public class ProfileControllerTest
 		public void cancel()
 		{
 			canceled = true;
+		}
+	}
+
+	private static class FakeCompletions implements CompletionRepository
+	{
+		private final List<String> ids = new ArrayList<>();
+
+		@Override
+		public List<CompletedRecommendation> load(String username)
+		{
+			return List.of();
+		}
+
+		@Override
+		public List<String> completedIds(String username)
+		{
+			return List.copyOf(ids);
+		}
+
+		@Override
+		public void markDone(
+			String username,
+			ProfileResponse.Recommendation recommendation,
+			Instant completedAt)
+		{
+			ids.remove(recommendation.getId());
+			ids.add(recommendation.getId());
+		}
+
+		@Override
+		public void restore(String username, String recommendationId)
+		{
+			ids.remove(recommendationId);
 		}
 	}
 }

@@ -12,14 +12,18 @@ Move website.
 
 Explore the full coach at [osrsnextmove.com](https://osrsnextmove.com).
 
-## What v0.2 includes
+## What v0.3 includes
 
 - **Account** — overall account score, progression tier, category scores, and
   earned titles.
 - **Coach** — up to 50 ranked recommendations in one scrollable feed, with
   Skilling, Bosses, Quests, PvM, and Unlock filters. Every idea includes the
   reason it fits and the next meaningful checkpoint. Choose **Track this goal**
-  to temporarily focus the sidebar on one idea while you play.
+  to temporarily focus the sidebar on one idea while you play, or **Mark done**
+  to remove it from this character's deck.
+- **Local completion ledger** — completed recommendations survive RuneLite
+  restarts, remain scoped to the matching character, and can be restored from
+  the collapsed **Completed** section. Friend profiles remain read-only.
 - **Bosses** — Boss Bravery score, next boss challenge, attempted kill counts,
   and boss achievements.
 - **Friend lookup** — temporarily inspect another public OSRS account and
@@ -29,8 +33,8 @@ Explore the full coach at [osrsnextmove.com](https://osrsnextmove.com).
 
 The Coach preserves the strongest recommendation while balancing the expanded
 feed across the available activity types. A focused goal lasts for the current
-RuneLite session. Durable **Done**, saved goals, and recommendation history
-remain on the website.
+RuneLite session. Recommendation completion is stored locally in RuneLite;
+saved goals and full recommendation history remain on the website.
 
 ## Setup
 
@@ -49,11 +53,12 @@ sync code for this visual companion.
 
 ## Privacy and data sources
 
-Next Move sends the logged-in character's RSN and complete quest states to its
-fixed HTTPS endpoint. The service processes that snapshot transiently, combines
-it with official public OSRS Hiscores, and does not persist the snapshot. The
-plugin does not automate gameplay, write to the game, or read credentials.
-Friend lookups send only the selected public RSN and remain in memory.
+Next Move sends the logged-in character's RSN, complete quest states, and the
+IDs of locally completed recommendations to its fixed HTTPS endpoint. The
+service processes that data transiently, combines it with official public OSRS
+Hiscores, and does not persist the snapshot or completion IDs. The plugin does
+not automate gameplay, write to the game, or read credentials. Friend lookups
+send only the selected public RSN and remain in memory.
 
 See [docs/privacy.md](docs/privacy.md) for the complete boundary.
 

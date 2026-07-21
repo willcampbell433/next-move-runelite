@@ -16,7 +16,9 @@ For the currently logged-in character only, it also sends:
 - the display name read from the local player;
 - every RuneLite quest enum key and display name;
 - each quest's `NOT_STARTED`, `IN_PROGRESS`, or `FINISHED` state; and
-- the snapshot time and plugin version.
+- the snapshot time and plugin version; and
+- up to 200 recommendation IDs that this RuneLite installation has marked
+  complete for the selected character.
 
 Friend lookup never includes the logged-in character's quest snapshot.
 
@@ -46,16 +48,20 @@ or arbitrary local files. It does not automate gameplay or write to the game.
 
 ## Local behavior
 
-Only the selected panel view is stored through RuneLite configuration.
+The selected panel view and an account-scoped ledger of completed
+recommendations are stored through RuneLite configuration. Each completion
+contains the recommendation ID, title, category, and completion time. The
+ledger is bounded to 200 entries per character and can be changed only while
+viewing the logged-in character.
 
-Loaded profiles, quest snapshots, friend lookups, and the selected
-recommendation for each username remain in memory only. Closing the plugin
-cancels active requests and clears that in-memory state.
+Loaded profiles, quest snapshots, friend lookups, and the selected focused goal
+for each username remain in memory only. Closing the plugin cancels active
+requests and clears that in-memory state.
 
 ## Server behavior
 
-The endpoint validates and processes quest snapshots only to create the current
-response; it does not write them to Next Move's database. The endpoint is rate
-limited. As with any web service, hosting infrastructure may retain standard
-operational request logs for reliability and abuse prevention. Next Move does
-not receive a RuneScape or Jagex password.
+The endpoint validates and processes quest snapshots and completion IDs only to
+create the current response; it does not write either to Next Move's database.
+The endpoint is rate limited. As with any web service, hosting infrastructure
+may retain standard operational request logs for reliability and abuse
+prevention. Next Move does not receive a RuneScape or Jagex password.

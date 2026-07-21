@@ -1,6 +1,8 @@
 package com.nextmove;
 
+import com.google.gson.Gson;
 import com.nextmove.api.NextMoveClient;
+import com.nextmove.completion.CompletionStore;
 import com.nextmove.profile.ProfileController;
 import com.nextmove.ui.NextMovePanel;
 import java.awt.image.BufferedImage;
@@ -41,18 +43,23 @@ public class NextMovePlugin extends Plugin
 	@Inject
 	private NextMoveClient nextMoveClient;
 
+	@Inject
+	private Gson gson;
+
 	private NextMovePanel panel;
 	private ProfileController controller;
 	private NavigationButton navigationButton;
 	private NextMoveSession session;
 	private QuestSnapshotBuilder questSnapshotBuilder;
+	private CompletionStore completionStore;
 	private boolean currentCharacterObserved;
 
 	@Override
 	protected void startUp()
 	{
 		panel = new NextMovePanel(configManager);
-		controller = new ProfileController(nextMoveClient, panel);
+		completionStore = new CompletionStore(configManager, gson);
+		controller = new ProfileController(nextMoveClient, panel, completionStore);
 		panel.setController(controller, this::refreshActiveProfile);
 		questSnapshotBuilder = new QuestSnapshotBuilder(NextMoveVersion.CURRENT);
 
@@ -126,6 +133,7 @@ public class NextMovePlugin extends Plugin
 		controller = null;
 		panel = null;
 		questSnapshotBuilder = null;
+		completionStore = null;
 		currentCharacterObserved = false;
 	}
 

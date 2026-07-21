@@ -2,6 +2,16 @@
 
 All notable changes to Next Move for RuneLite will be documented here.
 
+## 0.3.0 — 2026-07-21
+
+- Added account-scoped local completion state for recommendations.
+- Added **Mark done**, a collapsed **Completed** ledger, and **Restore** for the
+  logged-in character while keeping friend profiles read-only.
+- Send only bounded completion IDs with the transient current-character quest
+  snapshot so the service can return replacement recommendations.
+- Corrected Quest categorization and completion evidence for quest-derived
+  unlocks, Barrows gloves, Theatre of Blood entry mode, and the quest cape.
+
 ## 0.2.1 — 2026-07-21
 
 - Balanced the expanded recommendation response so boss suggestions cannot
