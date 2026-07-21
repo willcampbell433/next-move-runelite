@@ -19,10 +19,10 @@ Plugin Hub review. Do not automate any interaction with the game.
    scores, and titles without clipping at the normal RuneLite sidebar width.
    Power, Coach, and Bosses must remain visible above the content.
 6. Open Coach and confirm the primary recommendation, its rationale, unlock,
-   and full Wiki guide link render correctly. Use **Next idea** repeatedly and
-   confirm the bounded deck wraps instead of becoming exhausted. Choose an
-   entry under **Other ideas** and confirm it becomes the primary card without
-   affecting another username.
+   and full Wiki guide link render correctly. Confirm no available category
+   consumes more than seven slots. Choose **Track this goal** and confirm Coach
+   shows only that recommendation. Switch to Power and back to Coach, confirm
+   the focus remains, then choose **Browse other goals** to restore the feed.
 7. Open Bosses and confirm Boss Bravery, the next challenge, attempted bosses
    with positive KC, and achievements render correctly.
 8. Open every external link and confirm it uses the system browser and stays on

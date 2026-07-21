@@ -28,8 +28,8 @@ public class NextMoveClientTest
 	@Test
 	public void browserReleaseUsesOneVersionEverywhere()
 	{
-		assertEquals("0.2.0", NextMoveVersion.CURRENT);
-		assertEquals("Next-Move-RuneLite/0.2.0", NextMoveVersion.userAgent());
+		assertEquals("0.2.1", NextMoveVersion.CURRENT);
+		assertEquals("Next-Move-RuneLite/0.2.1", NextMoveVersion.userAgent());
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class NextMoveClientTest
 		assertEquals("GET", factory.capturedRequest.method());
 		assertEquals("application/json", factory.capturedRequest.header("Accept"));
 		assertEquals(
-			"Next-Move-RuneLite/0.2.0",
+			"Next-Move-RuneLite/0.2.1",
 			factory.capturedRequest.header("User-Agent"));
 		assertNotNull(result.response);
 		assertNull(result.failure);

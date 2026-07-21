@@ -10,7 +10,9 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
@@ -71,6 +73,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 	private boolean settingsOpen;
 	private boolean playerLookupOpen;
 	private View selectedView;
+	private final Map<String, String> focusedGoals = new HashMap<>();
 
 	public NextMovePanel(ConfigManager configManager)
 	{
@@ -227,7 +230,17 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 			{
 				ProfileResponse.Profile profile = state.getProfile().getProfile();
 				CoachPanel coach = new CoachPanel();
-				coach.render(profile);
+				String accountKey = profile.getUsername().toLowerCase(Locale.ROOT);
+				coach.render(profile, focusedGoals.get(accountKey), focusedGoalId -> {
+					if (focusedGoalId == null)
+					{
+						focusedGoals.remove(accountKey);
+					}
+					else
+					{
+						focusedGoals.put(accountKey, focusedGoalId);
+					}
+				});
 				panel.add(coach);
 			}
 			else

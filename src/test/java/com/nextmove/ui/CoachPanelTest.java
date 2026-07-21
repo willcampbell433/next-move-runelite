@@ -91,6 +91,24 @@ public class CoachPanelTest
 		assertTrue(text.contains("Continue on Next Move"));
 	}
 
+	@Test
+	public void tracksOneGoalInAFocusedViewAndCanReturnToTheFeed()
+	{
+		CoachPanel panel = renderPanel(fixture("full-profile.json").getProfile());
+
+		click(panel, "Track this goal");
+		String focused = text(panel);
+		assertTrue(focused.contains("TRACKING THIS GOAL"));
+		assertTrue(focused.contains("Start the Inferno cape grind"));
+		assertFalse(focused.contains("Push Ranged to 100"));
+		assertTrue(focused.contains("Browse other goals"));
+
+		click(panel, "Browse other goals");
+		String browsing = text(panel);
+		assertTrue(browsing.contains("Start the Inferno cape grind"));
+		assertTrue(browsing.contains("Push Ranged to 100"));
+	}
+
 	private static String render(ProfileResponse.Profile profile)
 	{
 		return text(renderPanel(profile));

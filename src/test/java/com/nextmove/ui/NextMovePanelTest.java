@@ -101,6 +101,28 @@ public class NextMovePanelTest
 	}
 
 	@Test
+	public void trackedCoachGoalSurvivesNavigationForTheSameAccount()
+	{
+		Harness harness = panel();
+		ProfileResponse response = fixture("full-profile.json");
+		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
+			"italiaboi69", "lastwilll", true, response)));
+
+		harness.click("Coach");
+		harness.click("Track this goal");
+		assertTrue(harness.text().contains("TRACKING THIS GOAL"));
+		assertFalse(harness.text().contains("Push Ranged to 100"));
+
+		harness.click("Power");
+		harness.click("Coach");
+		assertTrue(harness.text().contains("TRACKING THIS GOAL"));
+		assertFalse(harness.text().contains("Push Ranged to 100"));
+
+		harness.click("Browse other goals");
+		assertTrue(harness.text().contains("Push Ranged to 100"));
+	}
+
+	@Test
 	public void settingsIsASeparateScreenInsteadOfStackingOverTheProfile()
 	{
 		Harness harness = panel();
