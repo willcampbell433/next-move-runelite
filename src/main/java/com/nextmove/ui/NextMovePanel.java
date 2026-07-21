@@ -399,6 +399,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		panel.add(wrapped("Next Move sends the selected username to " + HOST + " over HTTPS."));
 		panel.add(wrapped("Account skills, activities, and bosses come from official public Hiscores."));
 		panel.add(wrapped("For your logged-in character, it also sends that character's quest progress."));
+		panel.add(wrapped("Locally completed recommendation IDs are sent only with that character's refresh to filter the next deck; the service does not store them."));
 		panel.add(wrapped("Friend lookups use Hiscores only; their quest completion is never guessed."));
 		JButton close = new JButton("Back to profile");
 		close.addActionListener(event -> {

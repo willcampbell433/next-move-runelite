@@ -187,6 +187,8 @@ public class NextMovePanelTest
 		assertTrue(text.contains("official public Hiscores"));
 		assertTrue(text.contains("logged-in character"));
 		assertTrue(text.contains("quest progress"));
+		assertTrue(text.contains("Locally completed recommendation IDs"));
+		assertTrue(text.contains("does not store them"));
 		assertTrue(text.contains("Friend lookups use Hiscores only"));
 		assertFalse(text.contains("Disable public lookup"));
 	}
