@@ -2,6 +2,16 @@
 
 All notable changes to Next Move for RuneLite will be documented here.
 
+## 0.2.0 — 2026-07-21
+
+- Replaced the one-at-a-time Coach carousel with a vertically scrollable feed
+  of up to 32 ranked recommendations.
+- Added All, Skilling, Bosses, Quests, PvM, and Unlock category filters.
+- Expanded every recommendation inline with its rationale, evidence,
+  checkpoint, Wiki guide, and Next Move website action.
+- Kept older plugin releases compatible by requesting the expanded response
+  only through the versioned 0.2 user agent.
+
 ## 0.1.3 — 2026-07-20
 
 - Fixed re-enabling Next Move while already logged in by scheduling the initial

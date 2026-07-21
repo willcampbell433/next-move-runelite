@@ -86,7 +86,7 @@ public class NextMovePanelTest
 	}
 
 	@Test
-	public void nextIdeaCyclesAndWrapsOnlyForTheActiveAccount()
+	public void coachShowsTheFullRecommendationFeed()
 	{
 		Harness harness = panel();
 		ProfileResponse jared = fixture("full-profile.json");
@@ -94,38 +94,10 @@ public class NextMovePanelTest
 			"italiaboi69", "lastwilll", true, jared)));
 		harness.click("Coach");
 		assertTrue(harness.text().contains("Start the Inferno cape grind"));
-
-		harness.click("Next idea");
-		String second = harness.text();
-		assertTrue(second.indexOf("Push Ranged to 100") < second.indexOf("OTHER IDEAS"));
-
-		harness.click("Next idea");
-		String wrapped = harness.text();
-		assertTrue(wrapped.indexOf("Start the Inferno cape grind") < wrapped.indexOf("OTHER IDEAS"));
-
-		ProfileResponse other = fixtureForUsername("full-profile.json", "no_noobs10");
-		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
-			"no_noobs10", "lastwilll", true, other)));
-		assertTrue(harness.text().contains("Start the Inferno cape grind"));
-	}
-
-	@Test
-	public void otherIdeasAreVisibleAndSelectable()
-	{
-		Harness harness = panel();
-		ProfileResponse response = fixture("full-profile.json");
-		harness.onEdt(() -> harness.panel.render(ProfileState.loaded(
-			"italiaboi69", "lastwilll", true, response)));
-		harness.click("Coach");
-
-		String initial = harness.text();
-		assertTrue(initial.contains("OTHER IDEAS"));
-		assertTrue(initial.contains("Push Ranged to 100"));
-
-		harness.click("Push Ranged to 100");
-		String selected = harness.text();
-		assertTrue(selected.indexOf("Push Ranged to 100") < selected.indexOf("OTHER IDEAS"));
-		assertTrue(selected.contains("Start the Inferno cape grind"));
+		assertTrue(harness.text().contains("Push Ranged to 100"));
+		assertTrue(harness.text().contains("SHOWING 2 OF 2 IDEAS"));
+		assertFalse(harness.text().contains("Next idea"));
+		assertFalse(harness.text().contains("OTHER IDEAS"));
 	}
 
 	@Test
