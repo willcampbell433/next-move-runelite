@@ -2,6 +2,12 @@
 
 All notable changes to Next Move for RuneLite will be documented here.
 
+## 0.1.3 — 2026-07-20
+
+- Fixed re-enabling Next Move while already logged in by scheduling the initial
+  quest snapshot on RuneLite's client thread.
+- Added a regression test for the logged-in enable path.
+
 ## 0.1.2 — 2026-07-20
 
 - Added a complete, first-party quest snapshot for the logged-in character.
