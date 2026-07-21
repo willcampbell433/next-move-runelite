@@ -5,6 +5,11 @@ import com.nextmove.api.NextMoveClient;
 import com.nextmove.api.ProfileFailure;
 import com.nextmove.api.ProfileRequest;
 import com.nextmove.api.ProfileResponse;
+import com.nextmove.completion.CompletedRecommendation;
+import com.nextmove.completion.CompletionRepository;
+import java.time.Instant;
+import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import javax.swing.SwingUtilities;
 
@@ -20,6 +25,7 @@ public class ProfileController
 
 	private final Loader loader;
 	private final ProfileView view;
+	private final CompletionRepository completions;
 	private long generation;
 	private ProfileRequest inFlight;
 	private ProfileState state = ProfileState.notLoaded(null);
@@ -31,13 +37,33 @@ public class ProfileController
 
 	public ProfileController(NextMoveClient client, ProfileView view)
 	{
-		this((username, snapshot, callback) -> client.load(username, snapshot, callback), view);
+		this(client, view, CompletionRepository.none());
+	}
+
+	public ProfileController(
+		NextMoveClient client,
+		ProfileView view,
+		CompletionRepository completions)
+	{
+		this(
+			(username, snapshot, callback) -> client.load(username, snapshot, callback),
+			view,
+			completions);
 	}
 
 	ProfileController(Loader loader, ProfileView view)
 	{
+		this(loader, view, CompletionRepository.none());
+	}
+
+	ProfileController(
+		Loader loader,
+		ProfileView view,
+		CompletionRepository completions)
+	{
 		this.loader = Objects.requireNonNull(loader);
 		this.view = Objects.requireNonNull(view);
+		this.completions = Objects.requireNonNull(completions);
 	}
 
 	public synchronized void load(String username, boolean friend)
@@ -60,11 +86,19 @@ public class ProfileController
 		long requestGeneration = ++generation;
 		cancelInFlight();
 		render(ProfileState.loading(selected, currentCharacter, effectiveFriend));
-		QuestSnapshot requestSnapshot = effectiveFriend
+		QuestSnapshot baseSnapshot = effectiveFriend
 			? null
-			: currentCharacter != null && selected.equalsIgnoreCase(currentCharacter)
+			: currentCharacter != null && sameAccount(selected, currentCharacter)
 				? currentQuestSnapshot
 				: null;
+		List<String> completedIds = baseSnapshot == null
+			? List.of()
+			: completions.completedIds(selected);
+		QuestSnapshot requestSnapshot = baseSnapshot == null
+			? null
+			: completedIds.isEmpty()
+				? baseSnapshot
+				: baseSnapshot.withCompletedRecommendationIds(completedIds);
 		inFlight = loader.load(selected, requestSnapshot, new NextMoveClient.Callback()
 		{
 			@Override
@@ -135,6 +169,39 @@ public class ProfileController
 	public synchronized boolean isFriendActive()
 	{
 		return state.isFriendActive();
+	}
+
+	public synchronized boolean isCurrentCharacterActive()
+	{
+		return canEditCurrentCharacter();
+	}
+
+	public synchronized List<CompletedRecommendation> completedRecommendations(
+		String username)
+	{
+		return currentCharacter != null && sameAccount(username, currentCharacter)
+			? completions.load(currentCharacter)
+			: List.of();
+	}
+
+	public synchronized void markDone(ProfileResponse.Recommendation recommendation)
+	{
+		if (!canEditCurrentCharacter() || recommendation == null)
+		{
+			return;
+		}
+		completions.markDone(currentCharacter, recommendation, Instant.now());
+		refresh();
+	}
+
+	public synchronized void restoreCompleted(String recommendationId)
+	{
+		if (!canEditCurrentCharacter() || recommendationId == null)
+		{
+			return;
+		}
+		completions.restore(currentCharacter, recommendationId);
+		refresh();
 	}
 
 	public synchronized void clearCurrentCharacter()
@@ -265,5 +332,24 @@ public class ProfileController
 		{
 			SwingUtilities.invokeLater(() -> view.render(next));
 		}
+	}
+
+	private boolean canEditCurrentCharacter()
+	{
+		return !state.isFriendActive()
+			&& currentCharacter != null
+			&& sameAccount(state.getActiveUsername(), currentCharacter);
+	}
+
+	private static boolean sameAccount(String left, String right)
+	{
+		return normalizeAccount(left).equals(normalizeAccount(right));
+	}
+
+	private static String normalizeAccount(String value)
+	{
+		return value == null
+			? ""
+			: value.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", "_");
 	}
 }

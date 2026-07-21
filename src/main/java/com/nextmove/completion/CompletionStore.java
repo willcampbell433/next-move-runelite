@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import net.runelite.client.config.ConfigManager;
 
-public final class CompletionStore
+public final class CompletionStore implements CompletionRepository
 {
 	private static final String CONFIG_GROUP = "next-move";
 	private static final String KEY_PREFIX = "completedRecommendations.";
@@ -45,6 +45,7 @@ public final class CompletionStore
 		this.gson = Objects.requireNonNull(gson);
 	}
 
+	@Override
 	public synchronized List<CompletedRecommendation> load(String username)
 	{
 		String accountKey = accountKey(username);
@@ -86,6 +87,7 @@ public final class CompletionStore
 		}
 	}
 
+	@Override
 	public synchronized List<String> completedIds(String username)
 	{
 		return load(username).stream()
@@ -93,6 +95,7 @@ public final class CompletionStore
 			.collect(Collectors.toUnmodifiableList());
 	}
 
+	@Override
 	public synchronized void markDone(
 		String username,
 		ProfileResponse.Recommendation recommendation,
@@ -118,6 +121,7 @@ public final class CompletionStore
 		save(username, entries);
 	}
 
+	@Override
 	public synchronized void restore(String username, String recommendationId)
 	{
 		if (recommendationId == null)

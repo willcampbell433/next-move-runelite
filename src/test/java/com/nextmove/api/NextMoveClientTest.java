@@ -42,7 +42,8 @@ public class NextMoveClientTest
 			"lastwilll",
 			List.of(new QuestSnapshot.QuestEntry(
 				"INTO_THE_TOMBS", "Into the Tombs", "NOT_STARTED")),
-			"0.1.2");
+			"0.1.2").withCompletedRecommendationIds(List.of(
+				"milestone:dragon-defender", "boss:vorkath"));
 
 		new NextMoveClient(factory, new Gson()).load("lastwilll", snapshot, result);
 
@@ -53,6 +54,8 @@ public class NextMoveClientTest
 		assertEquals("application/json; charset=utf-8",
 			Objects.requireNonNull(factory.capturedRequest.body()).contentType().toString());
 		assertTrue(requestBody(factory.capturedRequest).contains("\"INTO_THE_TOMBS\""));
+		assertTrue(requestBody(factory.capturedRequest).contains(
+			"\"completedRecommendationIds\":[\"milestone:dragon-defender\",\"boss:vorkath\"]"));
 		assertNotNull(result.response);
 		assertNull(result.failure);
 	}
