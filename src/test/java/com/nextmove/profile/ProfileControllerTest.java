@@ -1,6 +1,7 @@
 package com.nextmove.profile;
 
 import com.google.gson.Gson;
+import com.nextmove.QuestSnapshot;
 import com.nextmove.api.NextMoveClient;
 import com.nextmove.api.ProfileFailure;
 import com.nextmove.api.ProfileRequest;
@@ -23,6 +24,13 @@ import static org.junit.Assert.assertTrue;
 
 public class ProfileControllerTest
 {
+	private static final QuestSnapshot SNAPSHOT = new QuestSnapshot(
+		"2026-07-20T15:00:00Z",
+		"lastwilll",
+		List.of(new QuestSnapshot.QuestEntry(
+			"INTO_THE_TOMBS", "Into the Tombs", "NOT_STARTED")),
+		"0.1.2");
+
 	@Test
 	public void doesNotRequestBeforeExplicitLoad()
 	{
@@ -75,7 +83,7 @@ public class ProfileControllerTest
 		RecordingView view = new RecordingView();
 		ProfileController controller = new ProfileController(loader, view);
 
-		controller.setCurrentCharacter("lastwilll");
+		controller.setCurrentCharacter("lastwilll", SNAPSHOT);
 		controller.load("no_noobs10", true);
 		flushEdt();
 		assertTrue(view.latest.isFriendActive());
@@ -85,6 +93,29 @@ public class ProfileControllerTest
 		flushEdt();
 		assertFalse(view.latest.isFriendActive());
 		assertEquals("lastwilll", view.latest.getActiveUsername());
+		assertSame(SNAPSHOT, loader.calls.get(0).snapshot);
+		assertNull(loader.calls.get(1).snapshot);
+		assertSame(SNAPSHOT, loader.calls.get(2).snapshot);
+	}
+
+	@Test
+	public void manualCurrentCharacterRefreshUsesTheFreshSnapshot()
+	{
+		FakeLoader loader = new FakeLoader();
+		ProfileController controller = new ProfileController(loader, new RecordingView());
+		controller.setCurrentCharacter("lastwilll", SNAPSHOT);
+		loader.succeed(0, fixture("full-profile.json"));
+		flushEdt();
+		QuestSnapshot refreshed = new QuestSnapshot(
+			"2026-07-20T15:01:00Z",
+			"lastwilll",
+			SNAPSHOT.getQuests(),
+			"0.1.2");
+
+		controller.refreshCurrentCharacter(refreshed);
+
+		assertEquals(2, loader.calls.size());
+		assertSame(refreshed, loader.calls.get(1).snapshot);
 	}
 
 	@Test
@@ -206,9 +237,12 @@ public class ProfileControllerTest
 		private final List<PendingCall> calls = new ArrayList<>();
 
 		@Override
-		public ProfileRequest load(String username, NextMoveClient.Callback callback)
+		public ProfileRequest load(
+			String username,
+			QuestSnapshot snapshot,
+			NextMoveClient.Callback callback)
 		{
-			PendingCall call = new PendingCall(username, callback);
+			PendingCall call = new PendingCall(username, snapshot, callback);
 			calls.add(call);
 			return call.request;
 		}
@@ -227,12 +261,17 @@ public class ProfileControllerTest
 	private static class PendingCall
 	{
 		private final String username;
+		private final QuestSnapshot snapshot;
 		private final NextMoveClient.Callback callback;
 		private final FakeRequest request = new FakeRequest();
 
-		private PendingCall(String username, NextMoveClient.Callback callback)
+		private PendingCall(
+			String username,
+			QuestSnapshot snapshot,
+			NextMoveClient.Callback callback)
 		{
 			this.username = username;
+			this.snapshot = snapshot;
 			this.callback = callback;
 		}
 	}

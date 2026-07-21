@@ -11,6 +11,7 @@ import net.runelite.api.Player;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -20,13 +21,18 @@ import net.runelite.client.util.ImageUtil;
 
 @PluginDescriptor(
 	name = "Next Move",
-	description = "Shows public Next Move account scores, recommendations, and boss progression.",
-	tags = {"account", "goals", "bosses", "recommendations", "hiscores"}
+	description = "Shows quest-aware Next Move account scores, recommendations, and boss progression.",
+	tags = {"account", "goals", "bosses", "recommendations", "hiscores", "quests"}
 )
 public class NextMovePlugin extends Plugin
 {
+	private static final String PLUGIN_VERSION = "0.1.2";
+
 	@Inject
 	private Client client;
+
+	@Inject
+	private ClientThread clientThread;
 
 	@Inject
 	private ClientToolbar clientToolbar;
@@ -41,6 +47,7 @@ public class NextMovePlugin extends Plugin
 	private ProfileController controller;
 	private NavigationButton navigationButton;
 	private NextMoveSession session;
+	private QuestSnapshotBuilder questSnapshotBuilder;
 	private boolean currentCharacterObserved;
 
 	@Override
@@ -48,7 +55,8 @@ public class NextMovePlugin extends Plugin
 	{
 		panel = new NextMovePanel(configManager);
 		controller = new ProfileController(nextMoveClient, panel);
-		panel.setController(controller);
+		panel.setController(controller, this::refreshActiveProfile);
+		questSnapshotBuilder = new QuestSnapshotBuilder(PLUGIN_VERSION);
 
 		BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/panel-icon.png");
 		navigationButton = NavigationButton.builder()
@@ -82,9 +90,9 @@ public class NextMovePlugin extends Plugin
 				}
 
 				@Override
-				public void loadCurrentCharacter(String username)
+				public void loadCurrentCharacter(String username, QuestSnapshot snapshot)
 				{
-					controller.setCurrentCharacter(username);
+					controller.setCurrentCharacter(username, snapshot);
 				}
 
 				@Override
@@ -119,6 +127,7 @@ public class NextMovePlugin extends Plugin
 		navigationButton = null;
 		controller = null;
 		panel = null;
+		questSnapshotBuilder = null;
 		currentCharacterObserved = false;
 	}
 
@@ -158,10 +167,40 @@ public class NextMovePlugin extends Plugin
 		Player localPlayer = client.getLocalPlayer();
 		if (localPlayer != null && localPlayer.getName() != null)
 		{
-			session.loggedIn(localPlayer.getName());
+			QuestSnapshot snapshot = questSnapshotBuilder.build(client, localPlayer.getName());
+			session.loggedIn(localPlayer.getName(), snapshot);
 			return true;
 		}
 		return false;
+	}
+
+	private void refreshActiveProfile()
+	{
+		if (controller == null)
+		{
+			return;
+		}
+		if (controller.isFriendActive())
+		{
+			controller.refresh();
+			return;
+		}
+		clientThread.invokeLater(() -> {
+			if (controller == null || questSnapshotBuilder == null
+				|| client.getGameState() != GameState.LOGGED_IN)
+			{
+				return;
+			}
+			Player localPlayer = client.getLocalPlayer();
+			if (localPlayer == null || localPlayer.getName() == null)
+			{
+				return;
+			}
+			QuestSnapshot snapshot = questSnapshotBuilder.build(
+				client,
+				localPlayer.getName());
+			controller.refreshCurrentCharacter(snapshot);
+		});
 	}
 
 }

@@ -18,8 +18,8 @@ import java.util.regex.Pattern;
 public final class ProfileValidator
 {
 	private static final Pattern USERNAME = Pattern.compile("[A-Za-z0-9 _-]{1,12}");
-	private static final Set<String> DATA_SOURCES = Set.of("HISCORES");
-	private static final Set<String> QUEST_DATA = Set.of("MISSING");
+	private static final Set<String> DATA_SOURCES = Set.of("HISCORES", "RUNELITE");
+	private static final Set<String> QUEST_DATA = Set.of("MISSING", "AVAILABLE");
 	private static final Set<String> ACCOUNT_TIERS = Set.of(
 		"INCOMPLETE", "EARLY", "MID", "LATE", "ENDGAME");
 	private static final Set<String> BOSS_TIERS = Set.of(
@@ -58,6 +58,10 @@ public final class ProfileValidator
 		require(USERNAME.matcher(profile.getUsername()).matches(), "Username is invalid");
 		member("Data source", profile.getDataSource(), DATA_SOURCES);
 		member("Quest data", profile.getQuestData(), QUEST_DATA);
+		require(
+			("HISCORES".equals(profile.getDataSource()) && "MISSING".equals(profile.getQuestData()))
+				|| ("RUNELITE".equals(profile.getDataSource()) && "AVAILABLE".equals(profile.getQuestData())),
+			"Quest data does not match its source");
 		validateAccount(profile.getAccount());
 		if (profile.getRecommendation() != null)
 		{

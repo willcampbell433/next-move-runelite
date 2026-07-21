@@ -30,6 +30,19 @@ public class ProfileValidatorTest
 		assertNull(response.getProfile().getAccount().getCategories().get(4).getScore());
 	}
 
+	@Test
+	public void acceptsQuestAwareRuneLiteProfiles()
+	{
+		ProfileResponse response = gson.fromJson(
+			fixtureText("full-profile.json")
+				.replace("\"dataSource\": \"HISCORES\"", "\"dataSource\": \"RUNELITE\"")
+				.replace("\"questData\": \"MISSING\"", "\"questData\": \"AVAILABLE\""),
+			ProfileResponse.class);
+
+		ProfileValidator.validate(response);
+		assertEquals("RUNELITE", response.getProfile().getDataSource());
+	}
+
 	@Test(expected = ProfileValidationException.class)
 	public void rejectsUnsupportedSchema()
 	{

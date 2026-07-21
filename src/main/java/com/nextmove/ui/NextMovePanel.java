@@ -93,7 +93,13 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 
 	public void setController(ProfileController controller)
 	{
+		setController(controller, controller::refresh);
+	}
+
+	public void setController(ProfileController controller, Runnable refreshAction)
+	{
 		Objects.requireNonNull(controller);
+		Objects.requireNonNull(refreshAction);
 		actions = new Actions()
 		{
 			@Override
@@ -105,7 +111,7 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 			@Override
 			public void refresh()
 			{
-				controller.refresh();
+				refreshAction.run();
 			}
 
 			@Override
@@ -396,9 +402,10 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		title.setAlignmentX(Component.LEFT_ALIGNMENT);
 		panel.add(title);
 		panel.add(Box.createRigidArea(new Dimension(0, 6)));
-		panel.add(wrapped("Next Move sends the selected public username to " + HOST + " over HTTPS."));
+		panel.add(wrapped("Next Move sends the selected username to " + HOST + " over HTTPS."));
 		panel.add(wrapped("Account skills, activities, and bosses come from official public Hiscores."));
-		panel.add(wrapped("Quest completion is unavailable and is never guessed."));
+		panel.add(wrapped("For your logged-in character, it also sends that character's quest progress."));
+		panel.add(wrapped("Friend lookups use Hiscores only; their quest completion is never guessed."));
 		JButton close = new JButton("Back to profile");
 		close.addActionListener(event -> {
 			settingsOpen = false;
@@ -437,7 +444,11 @@ public class NextMovePanel extends PluginPanel implements ProfileView
 		}
 		if (state.getProfile() != null && state.getProfile().getProfile() != null)
 		{
-			return "Hiscores only · Quests unavailable";
+			ProfileResponse.Profile profile = state.getProfile().getProfile();
+			return "RUNELITE".equals(profile.getDataSource())
+				&& "AVAILABLE".equals(profile.getQuestData())
+				? "RuneLite quests · Hiscores skills"
+				: "Hiscores only · Quests unavailable";
 		}
 		return state.getMessage();
 	}

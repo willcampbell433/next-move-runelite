@@ -2,6 +2,7 @@ package com.nextmove.api;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
+import com.nextmove.QuestSnapshot;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,7 @@ import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
@@ -23,7 +25,9 @@ public class NextMoveClient
 	private static final HttpUrl ENDPOINT = Objects.requireNonNull(
 		HttpUrl.parse("https://osrsnextmove.com/api/runelite/profile"));
 	private static final Pattern USERNAME = Pattern.compile("[A-Za-z0-9 _-]{1,12}");
-	private static final String USER_AGENT = "Next-Move-RuneLite/0.1.0";
+	private static final String USER_AGENT = "Next-Move-RuneLite/0.1.2";
+	private static final okhttp3.MediaType JSON = okhttp3.MediaType.get(
+		"application/json; charset=utf-8");
 
 	private final Call.Factory callFactory;
 	private final Gson gson;
@@ -55,6 +59,14 @@ public class NextMoveClient
 
 	public ProfileRequest load(String username, Callback callback)
 	{
+		return load(username, null, callback);
+	}
+
+	public ProfileRequest load(
+		String username,
+		QuestSnapshot snapshot,
+		Callback callback)
+	{
 		Objects.requireNonNull(callback);
 		String validated = username == null ? "" : username.trim();
 		if (!USERNAME.matcher(validated).matches())
@@ -65,12 +77,22 @@ public class NextMoveClient
 			return () -> { };
 		}
 
-		Request request = new Request.Builder()
+		if (snapshot != null
+			&& !validated.equalsIgnoreCase(snapshot.getAccount().getDisplayName()))
+		{
+			callback.onFailure(failure(
+				ProfileFailure.Kind.INVALID_USERNAME,
+				"Quest snapshot does not match the selected character."));
+			return () -> { };
+		}
+
+		Request.Builder requestBuilder = new Request.Builder()
 			.url(ENDPOINT.newBuilder().addQueryParameter("player", validated).build())
 			.header("Accept", "application/json")
-			.header("User-Agent", USER_AGENT)
-			.get()
-			.build();
+			.header("User-Agent", USER_AGENT);
+		Request request = snapshot == null
+			? requestBuilder.get().build()
+			: requestBuilder.post(RequestBody.create(JSON, gson.toJson(snapshot))).build();
 		Call call = callFactory.newCall(request);
 		call.enqueue(new okhttp3.Callback()
 		{
