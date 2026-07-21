@@ -26,7 +26,7 @@ import net.runelite.client.util.ImageUtil;
 )
 public class NextMovePlugin extends Plugin
 {
-	private static final String PLUGIN_VERSION = "0.1.2";
+	private static final String PLUGIN_VERSION = "0.1.3";
 
 	@Inject
 	private Client client;
@@ -112,7 +112,7 @@ public class NextMovePlugin extends Plugin
 		currentCharacterObserved = false;
 		if (client.getGameState() == GameState.LOGGED_IN)
 		{
-			currentCharacterObserved = loadLocalPlayer();
+			scheduleInitialLocalPlayerLoad();
 		}
 	}
 
@@ -172,6 +172,18 @@ public class NextMovePlugin extends Plugin
 			return true;
 		}
 		return false;
+	}
+
+	void scheduleInitialLocalPlayerLoad()
+	{
+		clientThread.invokeLater(() -> {
+			if (session == null || questSnapshotBuilder == null
+				|| client.getGameState() != GameState.LOGGED_IN)
+			{
+				return;
+			}
+			currentCharacterObserved = loadLocalPlayer();
+		});
 	}
 
 	private void refreshActiveProfile()
