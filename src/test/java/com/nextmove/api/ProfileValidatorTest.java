@@ -91,15 +91,15 @@ public class ProfileValidatorTest
 	}
 
 	@Test
-	public void acceptsThirtyTwoRecommendations()
+	public void acceptsFiftyRecommendations()
 	{
-		ProfileValidator.validate(profileWithRecommendationCount(32));
+		ProfileValidator.validate(profileWithRecommendationCount(50));
 	}
 
 	@Test(expected = ProfileValidationException.class)
-	public void rejectsThirtyThreeRecommendations()
+	public void rejectsFiftyOneRecommendations()
 	{
-		ProfileValidator.validate(profileWithRecommendationCount(33));
+		ProfileValidator.validate(profileWithRecommendationCount(51));
 	}
 
 	private ProfileResponse profileWithRecommendationCount(int count)

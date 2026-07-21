@@ -16,9 +16,10 @@ Explore the full coach at [osrsnextmove.com](https://osrsnextmove.com).
 
 - **Account** — overall account score, progression tier, category scores, and
   earned titles.
-- **Coach** — up to 32 ranked recommendations in one scrollable feed, with
+- **Coach** — up to 50 ranked recommendations in one scrollable feed, with
   Skilling, Bosses, Quests, PvM, and Unlock filters. Every idea includes the
-  reason it fits and the next meaningful checkpoint.
+  reason it fits and the next meaningful checkpoint. Choose **Track this goal**
+  to temporarily focus the sidebar on one idea while you play.
 - **Bosses** — Boss Bravery score, next boss challenge, attempted kill counts,
   and boss achievements.
 - **Friend lookup** — temporarily inspect another public OSRS account and
@@ -26,8 +27,9 @@ Explore the full coach at [osrsnextmove.com](https://osrsnextmove.com).
 - **Safe links** — open the relevant full OSRS Wiki guide or the matching Next
   Move website page in the system browser.
 
-The Coach keeps the server-ranked order while letting you narrow the feed by
-activity type. Durable **Done**, goal tracking, and recommendation history
+The Coach preserves the strongest recommendation while balancing the expanded
+feed across the available activity types. A focused goal lasts for the current
+RuneLite session. Durable **Done**, saved goals, and recommendation history
 remain on the website.
 
 ## Setup

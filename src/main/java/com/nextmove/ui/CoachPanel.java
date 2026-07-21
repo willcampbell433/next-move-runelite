@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -44,6 +45,8 @@ public class CoachPanel extends JPanel
 	private ProfileResponse.Profile profile;
 	private List<ProfileResponse.Recommendation> recommendations = List.of();
 	private Filter selectedFilter = Filter.ALL;
+	private String focusedGoalId;
+	private Consumer<String> focusChanged = ignored -> { };
 
 	public CoachPanel()
 	{
@@ -54,15 +57,46 @@ public class CoachPanel extends JPanel
 
 	public void render(ProfileResponse.Profile profile)
 	{
+		render(profile, null, ignored -> { });
+	}
+
+	public void render(
+		ProfileResponse.Profile profile,
+		String focusedGoalId,
+		Consumer<String> focusChanged)
+	{
 		this.profile = profile;
 		this.recommendations = recommendationDeck(profile);
 		this.selectedFilter = Filter.ALL;
+		this.focusedGoalId = focusedGoalId;
+		this.focusChanged = focusChanged;
 		rebuild();
 	}
 
 	private void rebuild()
 	{
 		removeAll();
+		ProfileResponse.Recommendation focused = focusedRecommendation();
+		if (focused != null)
+		{
+			add(section("TRACKING THIS GOAL"));
+			add(gap(8));
+			add(recommendationCard(focused, false));
+			add(gap(2));
+			add(wrapped("Focused for this RuneLite session."));
+			add(gap(8));
+			JButton browse = new JButton("Browse other goals");
+			browse.addActionListener(event -> {
+				focusedGoalId = null;
+				focusChanged.accept(null);
+				rebuild();
+			});
+			add(SidebarUi.buttonStack(browse));
+			revalidate();
+			repaint();
+			return;
+		}
+
 		add(section("RECOMMENDATIONS"));
 		add(gap(5));
 		add(filterPanel());
@@ -94,12 +128,12 @@ public class CoachPanel extends JPanel
 			for (ProfileResponse.Recommendation recommendation : filtered)
 			{
 				add(gap(12));
-				add(recommendationCard(recommendation));
+				add(recommendationCard(recommendation, true));
 			}
 		}
 
 		add(gap(12));
-		add(wrapped("Browse every ranked idea here. Done, goal tracking, and full history stay on the Next Move website."));
+		add(wrapped("Browse every ranked idea here. Durable completion and full history stay on the Next Move website."));
 		revalidate();
 		repaint();
 	}
@@ -121,7 +155,9 @@ public class CoachPanel extends JPanel
 		return panel;
 	}
 
-	private JPanel recommendationCard(ProfileResponse.Recommendation recommendation)
+	private JPanel recommendationCard(
+		ProfileResponse.Recommendation recommendation,
+		boolean showTrackAction)
 	{
 		JPanel card = new JPanel();
 		card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
@@ -155,7 +191,20 @@ public class CoachPanel extends JPanel
 		JButton wiki = new JButton("Open Wiki guide");
 		wiki.addActionListener(event -> LinkBrowser.browse(
 			LinkFactory.wiki(recommendation.getWikiTitle())));
-		card.add(SidebarUi.buttonStack(wiki, websiteButton(recommendation)));
+		if (showTrackAction)
+		{
+			JButton track = new JButton("Track this goal");
+			track.addActionListener(event -> {
+				focusedGoalId = recommendation.getId();
+				focusChanged.accept(focusedGoalId);
+				rebuild();
+			});
+			card.add(SidebarUi.buttonStack(track, wiki, websiteButton(recommendation)));
+		}
+		else
+		{
+			card.add(SidebarUi.buttonStack(wiki, websiteButton(recommendation)));
+		}
 		card.add(gap(10));
 		JSeparator divider = new JSeparator();
 		divider.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -179,6 +228,18 @@ public class CoachPanel extends JPanel
 	{
 		return selectedFilter.category == null
 			|| selectedFilter.category.equals(recommendation.getCategory());
+	}
+
+	private ProfileResponse.Recommendation focusedRecommendation()
+	{
+		if (focusedGoalId == null)
+		{
+			return null;
+		}
+		return recommendations.stream()
+			.filter(recommendation -> focusedGoalId.equals(recommendation.getId()))
+			.findFirst()
+			.orElse(null);
 	}
 
 	private void selectFilter(Filter filter)

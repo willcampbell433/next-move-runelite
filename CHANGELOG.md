@@ -2,6 +2,14 @@
 
 All notable changes to Next Move for RuneLite will be documented here.
 
+## 0.2.1 — 2026-07-21
+
+- Balanced the expanded recommendation response so boss suggestions cannot
+  consume nearly every Coach slot.
+- Added **Track this goal** to focus Coach on one recommendation for the
+  current RuneLite session.
+- Added **Browse other goals** to return to the complete filterable feed.
+
 ## 0.2.0 — 2026-07-21
 
 - Replaced the one-at-a-time Coach carousel with a vertically scrollable feed

@@ -78,8 +78,8 @@ public final class ProfileValidator
 		{
 			return;
 		}
-		require(recommendations.size() <= 32,
-			"Recommendations must contain at most 32 items");
+		require(recommendations.size() <= 50,
+			"Recommendations must contain at most 50 items");
 		Set<String> seen = new HashSet<>();
 		for (Recommendation recommendation : recommendations)
 		{
