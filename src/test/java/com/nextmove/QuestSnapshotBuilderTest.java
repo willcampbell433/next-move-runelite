@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
 
 public class QuestSnapshotBuilderTest
 {
-	private static final int SUPPORTED_QUEST_COUNT = 210;
+	private static final int SUPPORTED_QUEST_COUNT = 211;
 
 	@Test
 	public void capturesEveryRuneLiteQuestAsOneCompleteSnapshot()
@@ -34,6 +34,9 @@ public class QuestSnapshotBuilderTest
 		assertEquals("0.1.2", snapshot.getSource().getPluginVersion());
 		assertEquals(SUPPORTED_QUEST_COUNT, Quest.values().length);
 		assertEquals(Quest.values().length, snapshot.getQuests().size());
+		assertTrue(snapshot.getQuests().stream().anyMatch(quest ->
+			"FALLEN_FROM_GRACE".equals(quest.getKey())
+				&& "Fallen From Grace".equals(quest.getName())));
 		assertTrue(snapshot.getQuests().stream().anyMatch(quest ->
 			"INTO_THE_TOMBS".equals(quest.getKey())
 				&& "Into the Tombs".equals(quest.getName())

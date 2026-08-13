@@ -2,6 +2,11 @@
 
 All notable changes to Next Move for RuneLite will be documented here.
 
+## 0.3.1 — 2026-08-12
+
+- Updated the complete quest snapshot contract for RuneLite's current 211
+  quests, including Fallen From Grace.
+
 ## 0.3.0 — 2026-07-21
 
 - Added account-scoped local completion state for recommendations.
