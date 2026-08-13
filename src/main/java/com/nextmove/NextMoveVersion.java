@@ -2,7 +2,7 @@ package com.nextmove;
 
 public final class NextMoveVersion
 {
-	public static final String CURRENT = "0.3.0";
+	public static final String CURRENT = "0.3.1";
 
 	public static String userAgent()
 	{
